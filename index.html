@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#FFE6F2">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="小丸子變美日記">
+<title>🍒 小丸子變美日記</title>
+<style>
+/* ===== Variables ===== */
+:root{
+  --pink-light:#FFE6F2; --pink-soft:#FFD6E7; --pink-mid:#FFB3CC;
+  --cream:#FFF9FC; --cherry:#FF4D6D; --cherry-dark:#E63950;
+  --yellow-soft:#FFF4B8; --green-soft:#C8F0D9; --purple-soft:#E8D5F5;
+  --text:#4A4A4A; --text-light:#888; --text-cherry:#C7304E;
+  --border:rgba(255,77,109,.15);
+  --shadow-sm:0 2px 8px rgba(255,77,109,.08);
+  --shadow-md:0 4px 16px rgba(255,77,109,.12);
+  --shadow-lg:0 8px 32px rgba(255,77,109,.18);
+  --radius-sm:12px; --radius-md:20px; --radius-lg:28px;
+  --safe-bottom:env(safe-area-inset-bottom);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;min-height:100vh;font-family:system-ui,-apple-system,"PingFang TC","Microsoft JhengHei","Noto Sans TC","Segoe UI",sans-serif;background:var(--cream);color:var(--text);font-weight:500;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overscroll-behavior-y:contain}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;font-weight:inherit}
+input,select,textarea{font-family:inherit;font-size:16px;color:var(--text)}
+input[type=number]{-moz-appearance:textfield}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+h1,h2,h3,h4{font-weight:800;color:var(--text-cherry)}
+a{color:var(--cherry);text-decoration:none}
+
+/* ===== Layout ===== */
+.app{display:flex;min-height:100vh;width:100%}
+
+.sidebar{
+  width:240px;flex-shrink:0;
+  background:linear-gradient(180deg,var(--pink-light),var(--pink-soft));
+  padding:24px 16px;display:flex;flex-direction:column;gap:8px;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.sidebar::-webkit-scrollbar{width:6px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--pink-mid);border-radius:3px}
+
+.brand{display:flex;flex-direction:column;align-items:center;padding:14px 0 22px;gap:8px}
+.brand .avatar{width:72px;height:72px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-md)}
+.brand h1{font-size:15px;font-weight:800;color:var(--text-cherry);text-align:center;line-height:1.3}
+
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:11px 14px;
+  border-radius:var(--radius-md);background:transparent;color:var(--text);
+  font-weight:600;font-size:14.5px;width:100%;text-align:left;transition:all .2s;
+}
+.nav-item:hover{background:rgba(255,255,255,.5)}
+.nav-item.active{background:white;color:var(--cherry);box-shadow:var(--shadow-md);font-weight:700}
+.nav-item .icon{width:20px;height:20px;flex-shrink:0}
+
+.content{flex:1;padding:32px 32px 80px;max-width:100%;overflow-x:hidden;min-width:0}
+.page{display:none;animation:fadeIn .3s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.page-title{font-size:26px;font-weight:800;color:var(--text-cherry);margin-bottom:4px}
+.page-subtitle{color:var(--text-light);margin-bottom:22px;font-size:14px;font-weight:500}
+
+/* ===== Cards ===== */
+.card{background:white;border-radius:var(--radius-lg);padding:22px;margin-bottom:18px;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
+.card-title{font-size:17px;font-weight:700;color:var(--text-cherry);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.card-title .ic{width:30px;height:30px;background:var(--pink-light);border-radius:10px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.card-sub{font-size:12px;color:var(--text-light);font-weight:500;margin-top:-6px;margin-bottom:14px}
+
+/* ===== Form ===== */
+.input-group{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.input-group label{font-size:13px;color:var(--text-light);font-weight:600}
+.input,.select{
+  width:100%;padding:12px 14px;border:1.5px solid var(--border);
+  border-radius:var(--radius-md);font-size:16px;color:var(--text);
+  background:var(--cream);font-weight:600;outline:none;transition:all .2s;
+}
+.input:focus,.select:focus{border-color:var(--cherry);background:white}
+.input-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+
+/* ===== Buttons ===== */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:11px 20px;border-radius:999px;background:white;color:var(--cherry);
+  font-weight:700;font-size:14.5px;border:1.5px solid var(--border);
+  min-height:44px;transition:all .2s;
+}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.btn:active{transform:translateY(0)}
+.btn-primary{background:linear-gradient(135deg,var(--cherry),var(--cherry-dark));color:white;border:none}
+.btn-soft{background:var(--pink-light);border-color:transparent}
+.btn-green{background:var(--green-soft);color:#2A8C57;border:none}
+.btn-yellow{background:var(--yellow-soft);color:#A68500;border:none}
+.btn-block{width:100%}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+.btn:disabled,.btn[disabled]{opacity:.4;cursor:not-allowed;transform:none}
+.btn-icon{width:36px;height:36px;padding:0;min-height:0;border-radius:50%}
+
+/* ===== Hero Card ===== */
+.hero-card{
+  background:linear-gradient(135deg,var(--pink-light),var(--yellow-soft));
+  border-radius:var(--radius-lg);padding:32px;
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+  text-align:center;margin-bottom:20px;position:relative;overflow:hidden;
+}
+.hero-card::before{content:'🍒';position:absolute;top:10px;right:18px;font-size:32px;opacity:.25;transform:rotate(15deg)}
+.hero-card::after{content:'🌸';position:absolute;bottom:14px;left:14px;font-size:28px;opacity:.25;transform:rotate(-10deg)}
+.hero-mascot{width:110px;height:110px}
+.hero-time{font-size:54px;font-weight:800;color:var(--text-cherry);font-variant-numeric:tabular-nums;letter-spacing:-1px;line-height:1}
+.hero-date{color:var(--text);font-size:15px;font-weight:600;opacity:.8}
+.hero-quote{
+  background:white;padding:14px 22px;border-radius:var(--radius-md);
+  font-size:15px;color:var(--text);font-weight:600;max-width:100%;line-height:1.5;
+  box-shadow:var(--shadow-sm);
+}
+
+/* ===== Checkin ===== */
+.checkin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.checkin-btn{
+  background:var(--cream);border:2px solid var(--border);border-radius:var(--radius-md);
+  padding:18px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;
+  min-height:110px;font-weight:700;font-size:14px;color:var(--text);transition:all .2s;
+}
+.checkin-btn.checked{background:linear-gradient(135deg,var(--pink-light),var(--pink-soft));border-color:var(--cherry);color:var(--cherry);box-shadow:var(--shadow-md)}
+.checkin-btn .emoji{font-size:34px;line-height:1}
+.checkin-btn .time{font-size:12px;color:var(--text-light);font-weight:600}
+.checkin-btn.checked .time{color:var(--cherry)}
+
+.streak-bar{background:var(--cream);border-radius:var(--radius-md);padding:14px;margin-top:14px}
+.streak-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:13px;font-weight:700;color:var(--text)}
+.streak-info .num{color:var(--cherry);font-size:18px}
+.streak-dots{display:flex;gap:4px;flex-wrap:wrap}
+.streak-dot{width:18px;height:18px;border-radius:50%;background:white;border:1.5px solid var(--border);position:relative}
+.streak-dot.done{background:var(--cherry);border-color:var(--cherry)}
+.streak-dot.today{background:white;border:2px solid var(--cherry)}
+.streak-dot.partial{background:var(--pink-light);border-color:var(--pink-mid)}
+
+/* ===== Tips ===== */
+.tip-card{
+  background:linear-gradient(135deg,var(--yellow-soft),var(--pink-light));
+  border-radius:var(--radius-md);padding:14px 16px;margin-bottom:10px;
+  display:flex;align-items:flex-start;gap:12px;font-size:14px;font-weight:600;color:var(--text);line-height:1.5;
+}
+.tip-card .tip-emoji{font-size:24px;flex-shrink:0;line-height:1}
+.tip-card.urgent{background:linear-gradient(135deg,#FFD6E0,var(--pink-light));border-left:4px solid var(--cherry)}
+.tip-card.gentle{background:linear-gradient(135deg,var(--green-soft),var(--cream))}
+
+/* ===== Goals ===== */
+.goal-list{background:white;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--border)}
+.goal-item{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.goal-item:last-child{border-bottom:none}
+.goal-item:hover{background:var(--cream)}
+.goal-item input{width:22px;height:22px;accent-color:var(--cherry);cursor:pointer;flex-shrink:0}
+.goal-item .label{flex:1;font-size:15px;font-weight:600;color:var(--text)}
+.goal-item.done .label{opacity:.5;text-decoration:line-through}
+
+/* ===== Video ===== */
+.video-card{margin-bottom:18px}
+.video-frame{
+  position:relative;width:100%;aspect-ratio:16/9;
+  border-radius:var(--radius-md);overflow:hidden;background:black;
+  box-shadow:var(--shadow-md);margin-bottom:8px;
+}
+.video-frame iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+.video-title{font-weight:700;font-size:15px;color:var(--text);margin-bottom:2px}
+.video-meta{font-size:12px;color:var(--text-light);font-weight:500}
+.video-edit-badge{
+  position:absolute;top:8px;right:8px;background:rgba(0,0,0,.7);color:white;
+  padding:4px 10px;border-radius:999px;font-size:11px;font-weight:600;z-index:2;
+}
+
+.video-category{margin-bottom:22px}
+.category-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:8px 14px;background:var(--pink-light);border-radius:var(--radius-md)}
+.category-header .emoji{font-size:22px}
+.category-header h3{margin:0;font-size:16px;color:var(--text-cherry)}
+
+/* ===== Stats ===== */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat-card{background:linear-gradient(135deg,var(--cream),var(--pink-light));padding:16px;border-radius:var(--radius-md);text-align:center;border:1px solid var(--border)}
+.stat-card.pink{background:linear-gradient(135deg,var(--pink-light),var(--pink-soft))}
+.stat-card.yellow{background:linear-gradient(135deg,#FFFAE0,var(--yellow-soft))}
+.stat-card.green{background:linear-gradient(135deg,#E8F8F0,var(--green-soft))}
+.stat-card.purple{background:linear-gradient(135deg,#F0E8FA,var(--purple-soft))}
+.stat-value{font-size:28px;font-weight:800;color:var(--cherry);line-height:1.05;letter-spacing:-.5px}
+.stat-value.small{font-size:20px}
+.stat-value .unit{font-size:13px;font-weight:600;color:var(--text-light);margin-left:2px}
+.stat-label{font-size:12px;color:var(--text-light);font-weight:600;margin-top:6px}
+
+/* ===== Status pills ===== */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700}
+.pill.good{background:var(--green-soft);color:#2A8C57}
+.pill.warn{background:var(--yellow-soft);color:#A68500}
+.pill.danger{background:#FFD6D6;color:#C0392B}
+.pill.neutral{background:var(--cream);color:var(--text-light)}
+
+/* ===== Trend ===== */
+.trend{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px}
+.trend.good{background:var(--green-soft);color:#2A8C57}
+.trend.neutral{background:var(--cream);color:var(--text-light)}
+.trend.warn{background:var(--yellow-soft);color:#A68500}
+
+/* ===== Mood ===== */
+.mood-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.mood-btn{aspect-ratio:1;border:2px solid var(--border);border-radius:var(--radius-md);font-size:30px;background:white;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.mood-btn.selected{border-color:var(--cherry);background:var(--pink-light);transform:scale(1.05)}
+
+/* ===== Reward badges ===== */
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(85px,1fr));gap:10px}
+.badge{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 8px;background:var(--pink-light);border-radius:var(--radius-md);font-size:11px;text-align:center;font-weight:700;color:var(--text-cherry);border:1px solid var(--border)}
+.badge.locked{opacity:.4;background:var(--cream)}
+.badge .emoji{font-size:30px;line-height:1}
+.badge .name{line-height:1.3}
+.badge .desc{font-size:9.5px;color:var(--text-light);font-weight:500;margin-top:2px}
+
+/* ===== List items ===== */
+.list{background:white;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--border)}
+.list-item{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.list-item:last-child{border-bottom:none}
+.list-item .left{flex:1;min-width:0}
+.list-item .title{font-weight:700;font-size:14.5px;color:var(--text);margin-bottom:2px}
+.list-item .meta{font-size:12px;color:var(--text-light);font-weight:500}
+
+/* ===== Settings ===== */
+.setting-row{
+  display:flex;align-items:center;gap:14px;padding:14px 16px;
+  background:white;border-radius:var(--radius-md);margin-bottom:8px;
+  border:1px solid var(--border);
+}
+.setting-row .label{flex:1;font-size:14.5px;font-weight:600;color:var(--text)}
+.setting-row .desc{font-size:12px;color:var(--text-light);font-weight:500;margin-top:2px}
+
+/* Toggle */
+.toggle{position:relative;width:46px;height:26px;background:var(--cream);border-radius:999px;cursor:pointer;transition:background .2s;flex-shrink:0;border:1.5px solid var(--border)}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:white;border-radius:50%;transition:left .2s;box-shadow:var(--shadow-sm)}
+.toggle.on{background:var(--cherry);border-color:var(--cherry)}
+.toggle.on::after{left:22px}
+
+/* ===== Responsive ===== */
+@media (max-width:900px){
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .content{padding:24px 22px 100px}
+}
+
+@media (max-width:768px){
+  /* 手機直立：保留左側導航，sidebar 收窄做 icon + 細字 */
+  .sidebar{
+    width:88px;padding:14px 6px;gap:4px;
+    height:100vh;position:sticky;top:0;
+    flex-direction:column;overflow-y:auto;
+  }
+  .sidebar::-webkit-scrollbar{width:0}
+  .brand{padding:6px 0 12px;gap:6px}
+  .brand .avatar{width:52px;height:52px}
+  .brand .avatar svg{width:44px;height:44px}
+  .brand h1{font-size:11px;line-height:1.25}
+  .nav-item{
+    flex-direction:column;padding:8px 2px;
+    font-size:10.5px;text-align:center;gap:4px;border-radius:12px;
+  }
+  .nav-item .icon{width:22px;height:22px}
+  .nav-item .label{font-size:10px;line-height:1.1}
+  .nav-item.active{font-weight:700}
+  .content{padding:16px 12px 24px}
+  .hero-card{padding:22px 16px}
+  .hero-time{font-size:40px}
+  .hero-mascot{width:88px;height:88px}
+  .card{padding:16px;border-radius:var(--radius-md)}
+  .card-title{font-size:15px}
+  .page-title{font-size:20px}
+  .checkin-grid{grid-template-columns:1fr;gap:8px}
+  .checkin-btn{flex-direction:row;justify-content:flex-start;padding:12px 14px;min-height:auto;gap:12px}
+  .checkin-btn .emoji{font-size:26px}
+}
+
+@media (max-width:380px){
+  .sidebar{width:74px;padding:10px 4px}
+  .brand{padding:4px 0 10px}
+  .brand .avatar{width:44px;height:44px}
+  .brand .avatar svg{width:38px;height:38px}
+  .brand h1{font-size:10px}
+  .nav-item{padding:6px 2px;gap:3px}
+  .nav-item .icon{width:20px;height:20px}
+  .nav-item .label{font-size:9px}
+  .content{padding:14px 10px 20px}
+  .checkin-grid{grid-template-columns:1fr}
+  .stat-value{font-size:22px}
+  .hero-time{font-size:34px}
+  .hero-mascot{width:76px;height:76px}
+}
+
+/* ===== Toast ===== */
+.toast{
+  position:fixed;bottom:90px;left:50%;transform:translateX(-50%);
+  background:rgba(74,74,74,.95);color:white;padding:11px 22px;
+  border-radius:999px;font-size:13.5px;font-weight:600;z-index:9999;
+  box-shadow:var(--shadow-lg);animation:toastIn .25s ease;max-width:90%;
+  text-align:center;
+}
+@keyframes toastIn{from{transform:translate(-50%,20px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+
+/* ===== Modal ===== */
+.modal-backdrop{
+  position:fixed;inset:0;background:rgba(74,74,74,.55);z-index:999;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  animation:fadeIn .2s ease;
+}
+.modal{
+  background:white;border-radius:var(--radius-lg);padding:24px;
+  max-width:400px;width:100%;box-shadow:var(--shadow-lg);animation:modalIn .25s ease;
+}
+@keyframes modalIn{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h3{font-size:18px;margin-bottom:12px;color:var(--text-cherry)}
+.modal p{font-size:14px;margin-bottom:18px;color:var(--text);line-height:1.6}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end}
+
+/* ===== Progress ===== */
+.progress-bar{width:100%;height:8px;background:var(--cream);border-radius:999px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--pink-mid),var(--cherry));border-radius:999px;transition:width .3s}
+
+/* Confetti for badge unlock */
+.confetti{position:fixed;top:-20px;font-size:24px;pointer-events:none;z-index:9999;animation:fall 2s linear forwards}
+@keyframes fall{to{transform:translateY(120vh) rotate(720deg);opacity:0}}
+
+/* Empty state */
+.empty{text-align:center;padding:30px 20px;color:var(--text-light);font-size:14px}
+.empty .emoji{font-size:48px;opacity:.4;margin-bottom:12px}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;background:var(--cream);padding:4px;border-radius:999px;margin-bottom:14px;overflow-x:auto}
+.tab{flex:1;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:700;color:var(--text-light);text-align:center;cursor:pointer;white-space:nowrap;transition:all .2s}
+.tab.active{background:white;color:var(--cherry);box-shadow:var(--shadow-sm)}
+
+/* Decorative dividers */
+.divider{display:flex;align-items:center;gap:10px;color:var(--text-light);font-size:12px;font-weight:600;margin:18px 0 14px;text-transform:uppercase;letter-spacing:1px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* Footer */
+.footer-note{text-align:center;color:var(--text-light);font-size:11px;font-weight:500;padding:24px 0;opacity:.7}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="avatar">
+        <svg viewBox="0 0 100 100" width="60" height="60" aria-hidden="true">
+          <circle cx="50" cy="58" r="34" fill="#FFE0B2"/>
+          <path d="M 18 52 Q 14 28 32 22 Q 38 12 50 12 Q 62 12 68 22 Q 86 28 82 52 Q 78 32 60 32 Q 50 28 40 32 Q 22 32 18 52 Z" fill="#5D4037"/>
+          <path d="M 24 44 Q 38 36 50 40 Q 62 36 76 44 Q 70 32 50 36 Q 30 32 24 44 Z" fill="#3E2723"/>
+          <ellipse cx="40" cy="58" rx="2.2" ry="3" fill="#4A4A4A"/>
+          <ellipse cx="60" cy="58" rx="2.2" ry="3" fill="#4A4A4A"/>
+          <circle cx="34" cy="66" r="4.5" fill="#FFB3CC" opacity=".7"/>
+          <circle cx="66" cy="66" r="4.5" fill="#FFB3CC" opacity=".7"/>
+          <path d="M 46 72 Q 50 76 54 72" stroke="#FF4D6D" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+          <circle cx="32" cy="20" r="3" fill="#FF4D6D"/>
+          <circle cx="36" cy="18" r="3" fill="#FF4D6D"/>
+          <path d="M 32 17 Q 34 12 38 14" stroke="#4CAF50" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1>🍒 小丸子<br>變美日記</h1>
+    </div>
+
+    <nav id="nav">
+      <button class="nav-item active" data-page="home">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12 L12 3 L21 12 M5 10 V20 H10 V14 H14 V20 H19 V10"/></svg>
+        <span class="label">首頁</span>
+      </button>
+      <button class="nav-item" data-page="body">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 8 H21 M6 4 V12 M12 4 V12 M18 4 V12 M3 16 H21 M6 20 V12 M12 20 V12 M18 20 V12"/></svg>
+        <span class="label">身體數據</span>
+      </button>
+      <button class="nav-item" data-page="skincare">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="3" rx="1"/><path d="M8 6 H16 V20 Q16 21 15 21 H9 Q8 21 8 20 Z"/><path d="M11 11 H13"/></svg>
+        <span class="label">護膚入門</span>
+      </button>
+      <button class="nav-item" data-page="fitness">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="1.5"/><path d="M11 8 L13 13 L9 19 M14 11 L19 10 L20 14 M6 12 L8 18"/></svg>
+        <span class="label">輕盈體態</span>
+      </button>
+      <button class="nav-item" data-page="style">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L8 7 L8 11 L11 11 L11 21 L13 21 L13 11 L16 11 L16 7 Z"/></svg>
+        <span class="label">穿搭學</span>
+      </button>
+      <button class="nav-item" data-page="brighten">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 L13.5 9 L19 9 L14.5 12.5 L16 18 L12 14.5 L8 18 L9.5 12.5 L5 9 L10.5 9 Z"/></svg>
+        <span class="label">美白亮膚</span>
+      </button>
+      <button class="nav-item" data-page="videos">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8 L16 12 L10 16 Z" fill="currentColor"/></svg>
+        <span class="label">影片館</span>
+      </button>
+      <button class="nav-item" data-page="checkin">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9 H21 M8 3 V7 M16 3 V7"/><circle cx="12" cy="14" r="1.5" fill="currentColor"/></svg>
+        <span class="label">打卡記錄</span>
+      </button>
+      <button class="nav-item" data-page="settings">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2 V5 M12 19 V22 M19 12 H22 M2 12 H5 M17 7 L19 5 M5 19 L7 17 M17 17 L19 19 M5 5 L7 7"/></svg>
+        <span class="label">設定</span>
+      </button>
+    </nav>
+  </aside>
+
+  <!-- ===== CONTENT ===== -->
+  <main class="content" id="content">
+
+    <!-- ========== PAGE: HOME ========== -->
+    <section id="page-home" class="page active">
+      <h2 class="page-title">首頁</h2>
+      <p class="page-subtitle">小丸子陪你每一天 🍒</p>
+
+      <div class="hero-card">
+        <svg class="hero-mascot" viewBox="0 0 120 120" aria-hidden="true">
+          <circle cx="60" cy="68" r="42" fill="#FFE0B2"/>
+          <path d="M 18 60 Q 13 32 38 26 Q 46 14 60 14 Q 74 14 82 26 Q 107 32 102 60 Q 96 38 70 38 Q 60 32 50 38 Q 24 38 18 60 Z" fill="#5D4037"/>
+          <path d="M 26 52 Q 46 42 60 46 Q 74 42 94 52 Q 86 38 60 42 Q 34 38 26 52 Z" fill="#3E2723"/>
+          <ellipse cx="48" cy="68" rx="2.6" ry="3.6" fill="#4A4A4A"/>
+          <ellipse cx="72" cy="68" rx="2.6" ry="3.6" fill="#4A4A4A"/>
+          <circle cx="40" cy="78" r="5.5" fill="#FFB3CC" opacity=".7"/>
+          <circle cx="80" cy="78" r="5.5" fill="#FFB3CC" opacity=".7"/>
+          <path d="M 55 85 Q 60 90 65 85" stroke="#FF4D6D" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+          <circle cx="38" cy="22" r="3.5" fill="#FF4D6D"/>
+          <circle cx="44" cy="20" r="3.5" fill="#FF4D6D"/>
+          <path d="M 38 18 Q 41 12 46 15" stroke="#4CAF50" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>
+        <div class="hero-time" id="heroTime">12:34:56</div>
+        <div class="hero-date" id="heroDate">2026年8月23日 · 星期六</div>
+        <div class="hero-quote" id="heroQuote">慢慢來，比較快 🍒</div>
+      </div>
+
+      <!-- Today's Checkin -->
+      <div class="card">
+        <div class="card-title"><span class="ic">⏰</span> 今日打卡</div>
+        <div class="checkin-grid" id="checkinGrid">
+          <button class="checkin-btn" data-type="up"><span class="emoji">☀️</span><span>早起</span><span class="time">目標 07:00</span></button>
+          <button class="checkin-btn" data-type="sleep"><span class="emoji">🌙</span><span>早睡</span><span class="time">目標 23:00</span></button>
+          <button class="checkin-btn" data-type="skin"><span class="emoji">📖</span><span>今日護膚</span><span class="time">早+晚</span></button>
+        </div>
+        <div class="streak-bar">
+          <div class="streak-info">
+            <span>早起連續 <span class="num" id="streakNum">0</span> 日 🔥</span>
+            <span class="num" id="streakTotal">0/14</span>
+          </div>
+          <div class="streak-dots" id="streakDots"></div>
+        </div>
+      </div>
+
+      <!-- Today's Goals -->
+      <div class="card">
+        <div class="card-title"><span class="ic">🎯</span> 今日小目標</div>
+        <div class="goal-list" id="goalList"></div>
+      </div>
+
+      <!-- Today's Tips -->
+      <div class="card">
+        <div class="card-title"><span class="ic">💡</span> 小丸子溫馨提示</div>
+        <div class="tip-card urgent">
+          <span class="tip-emoji">🥤</span>
+          <span><strong>每坐 40 分鐘</strong>起身拉伸 5 分鐘，飲杯水！小丸子陪你做米字操 ✨</span>
+        </div>
+        <div class="tip-card">
+          <span class="tip-emoji">☀️</span>
+          <span><strong>英國 Sheffield 今日</strong> — 即使陰天都要塗防曬 SPF30+，UVA 一年四季都穿透雲層嘅 🍒</span>
+        </div>
+        <div class="tip-card gentle">
+          <span class="tip-emoji">💤</span>
+          <span><strong>睡眠小貼士</strong> — 今晚目標 23:00 瞓覺 💤，瞓得早，脾氣好、護膚品都吸收多 30% ✨</span>
+        </div>
+        <div class="tip-card" id="personalTip"></div>
+      </div>
+    </section>
+
+    <!-- ========== PAGE: BODY ========== -->
+    <section id="page-body" class="page">
+      <h2 class="page-title">📏 身體數據</h2>
+      <p class="page-subtitle">輸入一次，自動計 BMI、腰臀比，個人化建議即時出</p>
+
+      <!-- Basic Profile -->
+      <div class="card">
+        <div class="card-title"><span class="ic">👤</span> 基本資料</div>
+        <div class="input-row">
+          <div class="input-group"><label>身高 (cm)</label><input type="number" class="input" id="inHeight" min="100" max="220" step="0.5"></div>
+          <div class="input-group"><label>年齡</label><input type="number" class="input" id="inAge" min="10" max="100"></div>
+          <div class="input-group"><label>目標體重 (kg)</label><input type="number" class="input" id="inGoalWeight" min="30" max="200" step="0.1"></div>
+        </div>
+        <div style="margin-top:8px;display:flex;justify-content:flex-end">
+          <button class="btn btn-primary" id="saveProfileBtn">💾 保存基本資料</button>
+        </div>
+      </div>
+
+      <!-- Latest Result -->
+      <div class="card" id="latestResultCard">
+        <div class="card-title"><span class="ic">📊</span> 數據概覽</div>
+        <div id="latestResultBody" class="empty">
+          <div class="emoji">📏</div>
+          暫無記錄，下面輸入第一次嘅數據啦～
+        </div>
+      </div>
+
+      <!-- Record Input -->
+      <div class="card">
+        <div class="card-title"><span class="ic">✍️</span> 記錄新數據</div>
+        <div class="card-sub">每週 1–2 次就夠，建議朝早空腹量</div>
+        <div class="input-row">
+          <div class="input-group"><label>日期</label><input type="date" class="input" id="recDate"></div>
+          <div class="input-group"><label>體重 (kg)</label><input type="number" class="input" id="recWeight" min="30" max="200" step="0.1"></div>
+        </div>
+        <div class="input-row">
+          <div class="input-group"><label>腰圍 (cm)</label><input type="number" class="input" id="recWaist" min="40" max="200" step="0.5"></div>
+          <div class="input-group"><label>臀圍 (cm)</label><input type="number" class="input" id="recHip" min="40" max="200" step="0.5"></div>
+        </div>
+        <div class="input-row">
+          <div class="input-group"><label>大腿圍 (cm)</label><input type="number" class="input" id="recThigh" min="20" max="100" step="0.5"></div>
+          <div class="input-group"><label>小腿圍 (cm)</label><input type="number" class="input" id="recCalf" min="15" max="80" step="0.5"></div>
+          <div class="input-group"><label>上臂圍 (cm)</label><input type="number" class="input" id="recUpper" min="15" max="80" step="0.5"></div>
+        </div>
+        <div class="input-group">
+          <label>整體感覺</label>
+          <select class="select" id="recFeel">
+            <option value="">選擇</option>
+            <option value="緊實">緊實</option>
+            <option value="水腫">水腫</option>
+            <option value="放鬆">放鬆</option>
+            <option value="其他">其他</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn btn-soft" id="clearRecordBtn">清空</button>
+          <button class="btn btn-primary" id="saveRecordBtn">💕 儲存並分析</button>
+        </div>
+      </div>
+
+      <!-- Trend Comparison -->
+      <div class="card" id="trendCard" style="display:none">
+        <div class="card-title"><span class="ic">📈</span> 最近 3 次對比</div>
+        <div id="trendBody"></div>
+      </div>
+
+      <!-- Analysis -->
+      <div class="card" id="analysisCard" style="display:none">
+        <div class="card-title"><span class="ic">🧠</span> 自動分析</div>
+        <div id="analysisBody"></div>
+      </div>
+
+      <!-- History -->
+      <div class="card" id="historyCard" style="display:none">
+        <div class="card-title"><span class="ic">📅</span> 歷史記錄</div>
+        <div id="historyList"></div>
+      </div>
+    </section>
+
+    <!-- ========== PAGE: SKINCARE ========== -->
+    <section id="page-skincare" class="page">
+      <h2 class="page-title">🧴 護膚入門</h2>
+      <p class="page-subtitle">由零開始，跟住步驟慢慢嚟，唔使買貴嘢</p>
+
+      <div class="tabs" id="skinTabs">
+        <div class="tab active" data-tab="routine">早晚流程</div>
+        <div class="tab" data-tab="type">膚質自測</div>
+        <div class="tab" data-tab="mistakes">常見誤區</div>
+        <div class="tab" data-tab="videos">教學影片</div>
+      </div>
+
+      <div id="skinTab-routine" class="skin-tab">
+        <div class="card">
+          <div class="card-title"><span class="ic">☀️</span> 早上流程（5 分鐘）</div>
+          <div class="list">
+            <div class="list-item"><span style="font-size:22px">💧</span><div class="left"><div class="title">1. 潔面</div><div class="meta">溫水 + 溫和潔面，30 秒內完成</div></div></div>
+            <div class="list-item"><span style="font-size:22px">💦</span><div class="left"><div class="title">2. 爽膚水</div><div class="meta">化妝棉或拍打上臉，幫後續吸收</div></div></div>
+            <div class="list-item"><span style="font-size:22px">✨</span><div class="left"><div class="title">3. 精華</div><div class="meta">按膚質揀（維C 美白 / 煙酰胺控油）</div></div></div>
+            <div class="list-item"><span style="font-size:22px">🧴</span><div class="left"><div class="title">4. 乳液 / 面霜</div><div class="meta">保水封住，揀清爽型</div></div></div>
+            <div class="list-item"><span style="font-size:22px">☀️</span><div class="left"><div class="title">5. 防曬 SPF30+ ⭐ 最最最重要！</div><div class="meta">英國陰天都要擦，UVA 一年到喉</div></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="ic">🌙</span> 晚上流程（8 分鐘）</div>
+          <div class="list">
+            <div class="list-item"><span style="font-size:22px">🧴</span><div class="left"><div class="title">1. 卸妝</div><div class="meta">有防曬就一定要卸，micellar water 最方便</div></div></div>
+            <div class="list-item"><span style="font-size:22px">💧</span><div class="left"><div class="title">2. 潔面</div><div class="meta">卸完再做一次徹底清潔</div></div></div>
+            <div class="list-item"><span style="font-size:22px">🧽</span><div class="left"><div class="title">3. 去角質（每週 2 次）</div><div class="meta">唔好日日用，新手每週 1–2 次就夠</div></div></div>
+            <div class="list-item"><span style="font-size:22px">✨</span><div class="left"><div class="title">4. 精華</div><div class="meta">晚上用維A醇 / 美白精華效果最好</div></div></div>
+            <div class="list-item"><span style="font-size:22px">🌙</span><div class="left"><div class="title">5. 晚霜</div><div class="meta">質地可以潤少少，瞓覺時修護</div></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span class="ic">💰</span> 英國平價入手清單</div>
+          <div class="list">
+            <div class="list-item"><span style="font-size:22px">🛒</span><div class="left"><div class="title">Boots 開架推介</div><div class="meta">Simple 潔面 / CeraVe 乳液 / La Roche-Posay 防曬</div></div></div>
+            <div class="list-item"><span style="font-size:22px">🛍️</span><div class="left"><div class="title">Superdrug 平價之選</div><div class="meta">Garnier micellar water / The Ordinary 精華 / Bioderma</div></div></div>
+            <div class="list-item"><span style="font-size:22px">📦</span><div class="left"><div class="title">網購保健</div><div class="meta">Holland & Barrett 維C / Beauty Pie 會員制慳錢</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="skinTab-type" class="skin-tab" style="display:none">
+        <div class="card">
+          <div class="card-title"><span class="ic">🔍</span> 膚質自測（揀最接近答案）</div>
+          <div id="quizBox"></div>
+        </div>
+      </div>
+
+      <div id="skinTab-mistakes" class="skin-tab" style="display:none">
+        <div class="card">
+          <div class="card-title"><span class="ic">⚠️</span> 5 個新手最易犯嘅錯</div>
+          <div class="list">
+            <div class="list-item"><span style="font-size:22px">❌</span><div class="left"><div class="title">1. 唔搽防曬</div><div class="meta">英國陰天都要防！UVA 一年四季穿透雲層，唔防曬會變黑、長斑、老得快</div></div></div>
+            <div class="list-item"><span style="font-size:22px">❌</span><div class="left"><div class="title">2. 過度清潔</div><div class="meta">一日洗 2-3 次就夠，洗太多會破壞皮膚屏障 → 越洗越油 / 越乾</div></div></div>
+            <div class="list-item"><span style="font-size:22px">❌</span><div class="left"><div class="title">3. 疊用太多產品</div><div class="meta">新手一次只入一個新產品，觀察 2 週，唔好貪心亂疊</div></div></div>
+            <div class="list-item"><span style="font-size:22px">❌</span><div class="left"><div class="title">4. 等到出問題先去處理</div><div class="meta">保養重在預防，每日 5 分鐘基礎護膚勝過出事先補救</div></div></div>
+            <div class="list-item"><span style="font-size:22px">❌</span><div class="left"><div class="title">5. 買貴嘢 = 好嘢</div><div class="meta">平價也有好物（CeraVe、The Ordinary），適合先過成分黨最重要</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="skinTab-videos" class="skin-tab" style="display:none">
+        <div id="skincareVideoList"></div>
+      </div>
+    </section>
+
+    <!-- ========== PAGE: FITNESS ========== -->
+    <section id="page-fitness" class="page">
+      <h2 class="page-title">🏃‍♀️ 輕盈體態</h2>
+      <p class="page-subtitle">不捱餓！15–20 分鐘每日，零裝備、新手友好</p>
+
+      <div class="card" id="fitPlanCard">
+        <div class="card-title"><span class="ic">🎯</span> 根據你嘅數據推薦</div>
+        <div id="fitPlanBody" class="empty">
+          <div class="emoji">📏</div>
+          先去「身體數據」輸入腰圍臀圍，依度會自動推薦針對性計劃
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">📅</span> 7 日輕盈計劃</div>
+        <div class="list">
+          <div class="list-item"><span style="font-size:22px">一</span><div class="left"><div class="title">週一：全身啟動 15 分鐘</div><div class="meta">暖身 + 全身動作 + 拉伸</div></div></div>
+          <div class="list-item"><span style="font-size:22px">二</span><div class="left"><div class="title">週二：腰腹集中</div><div class="meta">捲腹 + 平板 + 側腰，每個 30 秒</div></div></div>
+          <div class="list-item"><span style="font-size:22px">三</span><div class="left"><div class="title">週三：休息 + 拉筋</div><div class="meta">10 分鐘瑜伽拉筋放鬆</div></div></div>
+          <div class="list-item"><span style="font-size:22px">四</span><div class="left"><div class="title">週四：瘦腿拉筋</div><div class="meta">深蹲 + 弓箭步 + 抬腿</div></div></div>
+          <div class="list-item"><span style="font-size:22px">五</span><div class="left"><div class="title">週五：全身燒脂 HIIT</div><div class="meta">15 分鐘高強度間歇</div></div></div>
+          <div class="list-item"><span style="font-size:22px">六</span><div class="left"><div class="title">週六：行街 / 散步</div><div class="meta">Sheffield 邊行邊打卡景點 ✨</div></div></div>
+          <div class="list-item"><span style="font-size:22px">日</span><div class="left"><div class="title">週日：完全休息 + 記錄數據</div><div class="meta">身體需要恢復，唔使強求每日練</div></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">🥗</span> 飲食 3 大原則</div>
+        <div class="stats-grid">
+          <div class="stat-card green"><div class="stat-value">多菜</div><div class="stat-label">每餐一半蔬菜，纖維多飽腹</div></div>
+          <div class="stat-card pink"><div class="stat-value">夠蛋白</div><div class="stat-label">雞胸、魚、豆腐、雞蛋</div></div>
+          <div class="stat-card yellow"><div class="stat-value">少糖</div><div class="stat-label">戒飲品糖，皮膚會謝謝你</div></div>
+        </div>
+        <div style="margin-top:14px;padding:14px;background:var(--cream);border-radius:var(--radius-md);font-size:13px;line-height:1.6">
+          <strong style="color:var(--text-cherry)">🛒 英國超市平價食材：</strong><br>
+          Tesco / Sainsbury's / Lidl 雞蛋、雞胸、急凍三文魚、罐頭吞拿、希臘乳酪、燕麥、菠菜、broccoli、英國車厘子
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">💧</span> 每日追蹤</div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-value"><span id="waterNow">0</span><span class="unit">/1.5L</span></div><div class="stat-label">🥤 飲水（每按一下 +250ml）</div><button class="btn btn-soft" style="margin-top:8px" onclick="addWater()">＋ 飲咗一杯</button></div>
+          <div class="stat-card"><div class="stat-value" id="sleepLog">—</div><div class="stat-label">💤 昨晚睡眠（小時）</div><button class="btn btn-soft" style="margin-top:8px" onclick="logSleep()">記錄瞓覺時間</button></div>
+          <div class="stat-card"><div class="stat-value"><span id="saltToday">0</span></div><div class="stat-label">🧂 今日重口味餐（少啲）</div><button class="btn btn-soft" style="margin-top:8px" onclick="addSalt()">+1 重口味</button></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">🎬</span> 跟住做就啱</div>
+        <div id="fitnessVideoList"></div>
+      </div>
+    </section>
+
+    <!-- ========== PAGE: STYLE ========== -->
+    <section id="page-style" class="page">
+      <h2 class="page-title">👗 穿搭學</h2>
+      <p class="page-subtitle">按體型顯瘦顯高，平價也可以好好睇</p>
+
+      <div class="card" id="bodyTypeCard">
+        <div class="card-title"><span class="ic">📐</span> 體型自動識別</div>
+        <div id="bodyTypeBody" class="empty">
+          <div class="emoji">📏</div>
+          輸入身高體重腰圍臀圍即知你係邊種身型
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">✨</span> 顯瘦 5 大原則</div>
+        <div class="list">
+          <div class="list-item"><span style="font-size:22px">1️⃣</span><div class="left"><div class="title">深色 / 純色大面積</div><div class="meta">顯瘦穩陣，碎花 / 橫紋小心</div></div></div>
+          <div class="list-item"><span style="font-size:22px">2️⃣</span><div class="left"><div class="title">高腰線</div><div class="meta">褲頭高過肚臍 2cm，秒變長腿</div></div></div>
+          <div class="list-item"><span style="font-size:22px">3️⃣</span><div class="left"><div class="title">V 領 / 方領顯瘦</div><div class="meta">拉長頸部線條，告別圓臉</div></div></div>
+          <div class="list-item"><span style="font-size:22px">4️⃣</span><div class="left"><div class="title">外套披肩</div><div class="meta">造出 V 字視覺，收窄膊頭</div></div></div>
+          <div class="list-item"><span style="font-size:22px">5️⃣</span><div class="left"><div class="title">層次感</div><div class="meta">內修外寬，比單一寬鬆更顯瘦</div></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">🇬🇧</span> 英國四季穿搭要點</div>
+        <div class="stats-grid">
+          <div class="stat-card pink"><div class="stat-value">🌸</div><div class="stat-label">春：薄外套必備、雨靴超實用</div></div>
+          <div class="stat-card yellow"><div class="stat-value">☀️</div><div class="stat-label">夏：薄長袖防曬、保濕噴霧</div></div>
+          <div class="stat-card"><div class="stat-value">🍂</div><div class="stat-label">秋：層次配搭、風衣顯氣質</div></div>
+          <div class="stat-card purple"><div class="stat-value">❄️</div><div class="stat-label">冬：暖內衣、保暖長褸</div></div>
+        </div>
+        <div style="margin-top:14px;padding:14px;background:var(--cream);border-radius:var(--radius-md);font-size:13px;line-height:1.6">
+          <strong style="color:var(--text-cherry)">🛍️ 英國平價好買：</strong> Primark £5 起、H&M 基本款、New Look 上班裙、Uniqlo HEATTECH 保暖內衣、Marks & Spencer 內衣打底褲
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">🎬</span> 穿搭靈感</div>
+        <div id="styleVideoList"></div>
+      </div>
+    </section>
+
+    <!-- ========== PAGE: BRIGHTEN ========== -->
+    <section id="page-brighten" class="page">
+      <h2 class="page-title">✨ 美白亮膚</h2>
+      <p class="page-subtitle">先防後白，慢慢嚟，唔急</p>
+
+      <div class="card" style="background:linear-gradient(135deg,#FFFAE0,var(--yellow-soft));border-color:var(--yellow-soft)">
+        <div class="card-title"><span class="ic">⭐</span> 核心原則：防曬 > 美白</div>
+        <p style="font-size:14px;line-height:1.7;color:var(--text)">
+          美白最重要係 <strong style="color:var(--cherry)">防曬</strong>，冇防曬做再多美白都白費！英國全年都要防，即使陰天、雪天、室內窗邊。
+        </p>
+        <div class="pill good" style="margin-top:10px">☀️ SPF30+ 每日必搽</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">🧬</span> 美白流程</div>
+        <div class="list">
+          <div class="list-item"><span style="font-size:22px">☀️</span><div class="left"><div class="title">早上：防曬</div><div class="meta">最重要一步，SPF30+、PA+++ 或以上</div></div></div>
+          <div class="list-item"><span style="font-size:22px">🟠</span><div class="left"><div class="title">早上 / 晚上：維 C 精華</div><div class="meta">抗氧化、亮膚，平價揀 The Ordinary</div></div></div>
+          <div class="list-item"><span style="font-size:22px">💧</span><div class="left"><div class="title">早晚：煙酰胺精華</div><div class="meta">均勻膚色、控油、收毛孔</div></div></div>
+          <div class="list-item"><span style="font-size:22px">🌙</span><div class="left"><div class="title">晚上：美白晚霜 / 維A醇</div><div class="meta">晚間修復效果好，但日間一定要防曬</div></div></div>
+          <div class="list-item"><span style="font-size:22px">🥤</span><div class="left"><div class="title">內服：維C + 膠原蛋白</div><div class="meta">Holland & Barrett 平價入手</div></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">💰</span> 英國容易買到嘅美白好物</div>
+        <div class="stats-grid">
+          <div class="stat-card pink"><div class="stat-value">£5-15</div><div class="stat-label">The Ordinary 維C / 煙酰胺</div></div>
+          <div class="stat-card yellow"><div class="stat-value">£10-20</div><div class="stat-label">CeraVe 美白面霜</div></div>
+          <div class="stat-card green"><div class="stat-value">£15-30</div><div class="stat-label">La Roche-Posay 防曬</div></div>
+          <div class="stat-card purple"><div class="stat-value">£10-25</div><div class="stat-label">Garnier 維C 系列</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">⚠️</span> 常見誤區</div>
+        <div class="list">
+          <div class="list-item"><span style="font-size:22px">❌</span><div class="left"><div class="title">成份亂疊</div><div class="meta">維A醇 + 維C + 果酸同時用會刺激皮膚，一次一個先</div></div></div>
+          <div class="list-item"><span style="font-size:22px">❌</span><div class="left"><div class="title">搽完唔等吸收</div><div class="meta">每層精華要等 1-2 分鐘再搽下一層</div></div></div>
+          <div class="list-item"><span style="font-size:22px">❌</span><div class="left"><div class="title">以為美白就快見效</div><div class="meta">皮膚更新週期 28 日，最少 8 週先見到效果，慢慢嚟</div></div></div>
+          <div class="list-item"><span style="font-size:22px">❌</span><div class="left"><div class="title">只美白唔保濕</div><div class="meta">美白之餘保濕唔可以少，乾紋、暗沉好多時係缺水</div></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">🎬</span> 美白教學</div>
+        <div id="brightenVideoList"></div>
+      </div>
+    </section>
+
+    <!-- ========== PAGE: VIDEOS ========== -->
+    <section id="page-videos" class="page">
+      <h2 class="page-title">📺 影片館</h2>
+      <p class="page-subtitle">全部直接播放，一按即睇，唔使跳轉</p>
+
+      <div class="tip-card gentle" style="margin-bottom:18px">
+        <span class="tip-emoji">💡</span>
+        <span><strong>影片更換方法：</strong>去「設定 → 影片 ID 管理」可以統一改，所有影片位會即時更新 🍒</span>
+      </div>
+
+      <div id="videoLibrary"></div>
+    </section>
+
+    <!-- ========== PAGE: CHECKIN ========== -->
+    <section id="page-checkin" class="page">
+      <h2 class="page-title">📅 打卡記錄</h2>
+      <p class="page-subtitle">堅持就係勝利，每日 5 分鐘的好習慣</p>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">📋</span> 今日快速打卡</div>
+        <div class="checkin-grid" id="fullCheckinGrid">
+          <button class="checkin-btn" data-type="up"><span class="emoji">☀️</span><span>早起 07:00</span><span class="time">起身打卡</span></button>
+          <button class="checkin-btn" data-type="sleep"><span class="emoji">🌙</span><span>早睡 23:00</span><span class="time">瞓覺打卡</span></button>
+          <button class="checkin-btn" data-type="skin"><span class="emoji">📖</span><span>護膚流程</span><span class="time">早晚各一</span></button>
+          <button class="checkin-btn" data-type="sun"><span class="emoji">🧴</span><span>搽防曬</span><span class="time">SPF30+</span></button>
+          <button class="checkin-btn" data-type="water"><span class="emoji">🥤</span><span>飲夠 1.5L 水</span><span class="time">8 杯</span></button>
+          <button class="checkin-btn" data-type="exercise"><span class="emoji">🏃‍♀️</span><span>運動 15 分鐘</span><span class="time">跟片做</span></button>
+        </div>
+        <div style="margin-top:14px;font-size:13px;color:var(--text-light);text-align:center">今日完成 <span id="todayDoneNum" style="color:var(--cherry);font-weight:800">0</span> / 6 項 🔥</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">😀</span> 今日心情</div>
+        <div class="mood-row" id="moodRow">
+          <button class="mood-btn" data-mood="😢">😢</button>
+          <button class="mood-btn" data-mood="😐">😐</button>
+          <button class="mood-btn" data-mood="🙂">🙂</button>
+          <button class="mood-btn" data-mood="😊">😊</button>
+          <button class="mood-btn" data-mood="🥰">🥰</button>
+        </div>
+        <div class="input-group" style="margin-top:14px">
+          <label>今日感受（揀填）</label>
+          <textarea class="input" id="moodNote" rows="3" placeholder="今日邊度最滿意？想改善嘅地方..." style="resize:vertical"></textarea>
+        </div>
+        <div style="display:flex;justify-content:flex-end"><button class="btn btn-primary" id="saveMoodBtn">💕 儲存心情</button></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">🏆</span> 獎勵系統</div>
+        <div class="badge-grid" id="badgeGrid"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">📊</span> 月度回顧</div>
+        <div id="monthlyStats"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">📅</span> 近期打卡</div>
+        <div id="recentCheckins"></div>
+      </div>
+    </section>
+
+    <!-- ========== PAGE: SETTINGS ========== -->
+    <section id="page-settings" class="page">
+      <h2 class="page-title">⚙️ 設定</h2>
+      <p class="page-subtitle">個人化調整，全部資料僅本機保存 🔒</p>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">🎨</span> 主題</div>
+        <div class="stats-grid">
+          <div class="stat-card pink"><div class="stat-value">🍒</div><div class="stat-label">小丸子粉紅（預設）</div></div>
+          <div class="stat-card yellow"><div class="stat-value">🌸</div><div class="stat-label">奶白櫻花</div></div>
+          <div class="stat-card purple"><div class="stat-value">💗</div><div class="stat-label">櫻桃紅（深色版）</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">⏰</span> 提醒時間</div>
+        <div class="setting-row">
+          <div style="flex:1">
+            <div class="label">早起提醒</div>
+            <div class="desc">每日響呢個時間提醒起身</div>
+          </div>
+          <input type="time" class="input" id="remindUp" value="06:45" style="width:120px">
+        </div>
+        <div class="setting-row">
+          <div style="flex:1">
+            <div class="label">早睡提醒</div>
+            <div class="desc">瞓覺前 30 分鐘提醒收工</div>
+          </div>
+          <input type="time" class="input" id="remindSleep" value="22:30" style="width:120px">
+        </div>
+        <div class="setting-row">
+          <div style="flex:1">
+            <div class="label">晚間護膚</div>
+            <div class="desc">提醒洗面、搽晚霜</div>
+          </div>
+          <input type="time" class="input" id="remindSkin" value="21:30" style="width:120px">
+        </div>
+        <div class="setting-row">
+          <div style="flex:1">
+            <div class="label">每 40 分鐘提醒起身活動</div>
+            <div class="desc">避免坐太久，做米字操</div>
+          </div>
+          <div class="toggle on" id="toggleStretch"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">📏</span> 單位</div>
+        <div class="setting-row">
+          <div style="flex:1"><div class="label">長度單位</div></div>
+          <select class="select" id="unitLength" style="width:120px"><option value="cm">cm</option></select>
+        </div>
+        <div class="setting-row">
+          <div style="flex:1"><div class="label">重量單位</div></div>
+          <select class="select" id="unitWeight" style="width:120px"><option value="kg">kg</option></select>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">🎬</span> 影片 ID 管理</div>
+        <div class="card-sub">每個 key 對應一個 YouTube 影片 ID（如 dQw4w9WgXcQ），改完即時生效</div>
+        <div id="videoIdEditor"></div>
+        <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+          <button class="btn btn-soft" id="restoreVideoDefaultBtn">🔄 還原預設</button>
+          <button class="btn btn-primary" id="saveVideoIdsBtn">💾 保存影片 ID</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">💾</span> 數據備份</div>
+        <div class="card-sub">建議每週備份一次，避免意外清咗瀏覽器資料</div>
+        <div class="btn-row">
+          <button class="btn btn-soft" id="exportBtn">⬇️ 導出 JSON 備份</button>
+          <button class="btn btn-soft" id="importBtn">⬆️ 導入 JSON 還原</button>
+          <input type="file" id="importFile" accept="application/json,.json" style="display:none">
+        </div>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px dashed var(--border)">
+          <div class="setting-row" style="background:transparent;border:none;padding:0">
+            <div style="flex:1">
+              <div class="label" style="color:var(--cherry)">⚠️ 清空所有數據</div>
+              <div class="desc">所有打卡、身體記錄、設定都會被刪除，呢個動作 <strong>無法復原</strong></div>
+            </div>
+            <button class="btn" id="clearAllBtn">🗑️ 清空</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">🔒</span> 關於同隱私</div>
+        <div style="font-size:14px;line-height:1.8;color:var(--text)">
+          <p><strong>🍒 小丸子變美日記 v1.0</strong></p>
+          <p>專為英國 Sheffield 朋友設計嘅本地化美容工作台 🛠️</p>
+          <p style="margin-top:10px"><strong>🔒 私隱聲明</strong></p>
+          <p>所有數據 <strong>僅儲存在你嘅瀏覽器 localStorage</strong>，<br>
+          <strong>唔上傳任何伺服器、唔經任何第三方</strong>。<br>
+          清瀏覽器資料 = 清數據，請記得定期導出備份。<br>
+          部署後嘅網址雖然公開可訪問，但其他人打開只會見到自己嘅空資料 🛡️</p>
+          <p style="margin-top:10px"><strong>📺 影片</strong></p>
+          <p>影片由 YouTube 嵌入播放，YouTube 可能會收集 IP 等技術數據。介意嘅話去設定頁改用其他 ID 或留空。</p>
+        </div>
+      </div>
+
+      <div class="footer-note">
+        Made with 🍒 for Sheffield · v1.0
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+/* ==========================================================
+   🍒 小丸子變美日記 — App Logic
+   Single-file HTML, localStorage, all inline. No deps.
+   ========================================================== */
+
+const KEY = 'wb_maruko_';
+const $ = (s, p) => (p || document).querySelector(s);
+const $$ = (s, p) => Array.from((p || document).querySelectorAll(s));
+
+const get = (k, d) => { try { const v = localStorage.getItem(KEY + k); return v === null ? d : JSON.parse(v); } catch { return d; } };
+const set = (k, v) => { try { localStorage.setItem(KEY + k, JSON.stringify(v)); } catch (e) { toast('儲存失敗：' + e.message); } };
+
+const todayStr = () => new Date().toISOString().split('T')[0];
+const daysAgo = (n) => { const d = new Date(Date.now() - n*86400000); return d.toISOString().split('T')[0]; };
+
+/* ===== Default Video Map ===== */
+const defaultVideoMap = {
+  skincare_wash:   'dQw4w9WgXcQ',
+  skincare_spf:    'dQw4w9WgXcQ',
+  skincare_type:   'dQw4w9WgXcQ',
+  fitness_full:    'dQw4w9WgXcQ',
+  fitness_abs:     'dQw4w9WgXcQ',
+  fitness_leg:     'dQw4w9WgXcQ',
+  style_dress:     'dQw4w9WgXcQ',
+  style_budget:    'dQw4w9WgXcQ',
+  style_winter:    'dQw4w9WgXcQ',
+  brighten_start:  'dQw4w9WgXcQ',
+  brighten_serum:  'dQw4w9WgXcQ',
+  brighten_glow:   'dQw4w9WgXcQ',
+  vid_skincare1:   'dQw4w9WgXcQ',
+  vid_skincare2:   'dQw4w9WgXcQ',
+  vid_fitness1:    'dQw4w9WgXcQ',
+  vid_fitness2:    'dQw4w9WgXcQ',
+  vid_fitness3:    'dQw4w9WgXcQ',
+  vid_style1:      'dQw4w9WgXcQ',
+  vid_style2:      'dQw4w9WgXcQ',
+  vid_brighten1:   'dQw4w9WgXcQ',
+  vid_brighten2:   'dQw4w9WgXcQ',
+  vid_brighten3:   'dQw4w9WgXcQ',
+};
+const videoMeta = {
+  skincare_wash:   { title: '🧴 新手潔面完整教學', meta: '5 分鐘學識正確洗臉', category: 'skincare' },
+  skincare_spf:    { title: '☀️ 防曬正確用法', meta: '幾時補、補幾多、邊度要搽', category: 'skincare' },
+  skincare_type:   { title: '🔍 一分鐘膚質自測', meta: '乾肌、油肌、混合、敏感', category: 'skincare' },
+  fitness_full:    { title: '🏃‍♀️ 15 分鐘零裝備全身運動', meta: '每日追蹤推薦動作', category: 'fitness' },
+  fitness_abs:     { title: '💪 臥床腰腹訓練', meta: '消肚腩 10 分鐘', category: 'fitness' },
+  fitness_leg:     { title: '🦵 瘦腿拉筋消水腫', meta: '8 個新手友好動作', category: 'fitness' },
+  style_dress:     { title: '👗 同身形顯瘦穿搭', meta: '梨形 / 蘋果形 / 沙漏都啱', category: 'style' },
+  style_budget:    { title: '💷 平價高質感配搭', meta: 'Primark / H&M 顯貴穿搭', category: 'style' },
+  style_winter:    { title: '🧥 英國秋冬保暖顯瘦穿搭', meta: '唔變米芝蓮人', category: 'style' },
+  brighten_start:  { title: '✨ 新手美白入門步驟', meta: '防曬 > 美白', category: 'brighten' },
+  brighten_serum:  { title: '🧪 平價有效美白精華', meta: 'The Ordinary / CeraVe', category: 'brighten' },
+  brighten_glow:   { title: '🌟 去黃提亮改善暗沉', meta: '5 個生活小習慣', category: 'brighten' },
+  vid_skincare1:   { title: '🎬 護膚：早晚完整流程', meta: '新手必睇一次', category: 'all' },
+  vid_skincare2:   { title: '🎬 護膚：英國平價好物開箱', meta: 'Boots / Superdrug', category: 'all' },
+  vid_fitness1:    { title: '🎬 居家全身 HIIT', meta: '15 分鐘爆汗', category: 'all' },
+  vid_fitness2:    { title: '🎬 辦公室拉筋伸展', meta: '腰痛頸梗救星', category: 'all' },
+  vid_fitness3:    { title: '🎬 居家消水腫拉筋', meta: '起身即刻瘦', category: 'all' },
+  vid_style1:      { title: '🎬 梨形身顯瘦褲款', meta: '5 條必入', category: 'all' },
+  vid_style2:      { title: '🎬 英國秋冬保暖穿搭', meta: '唔肥唔腫', category: 'all' },
+  vid_brighten1:   { title: '🎬 美白成分全解析', meta: '維C / 煙酰胺 / A 醇', category: 'all' },
+  vid_brighten2:   { title: '🎬 維C 精華正確用法', meta: '早晚搭配重點', category: 'all' },
+  vid_brighten3:   { title: '🎬 改善暗沉飲食法', meta: '由內到外透亮', category: 'all' },
+};
+
+/* ===== Quotes ===== */
+const QUOTES = [
+  '慢慢來，比較快 🍒',
+  '愛自己先係最靚嘅事！',
+  '今日又變靚咗一點點啦 ✨',
+  '每一日嘅堅持，都係送畀未來嘅自己嘅禮物 🎁',
+  '唔使同人比，做自己嘅節奏就得 🌸',
+  '小丸子陪你加油，今日都要好好愛自己 🍒',
+  '心情好，皮膚就好；皮膚好，心情就好 💕',
+  '今日嘅懶，明日會後悔；今日嘅堅持，後日會感謝 💪',
+  'Sheffield 嘅陽光雖然少，但你嘅笑容可以好耀眼 ☀️',
+  '每日進步 1%，一年後你就會變咗 🎯',
+];
+let quoteIdx = 0;
+
+/* ===== Toast ===== */
+let toastTimer = null;
+function toast(msg) {
+  document.querySelectorAll('.toast').forEach(t => t.remove());
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.remove(), 2200);
+}
+
+/* ===== Modal ===== */
+function confirmModal(title, desc, onYes, danger = false) {
+  const back = document.createElement('div');
+  back.className = 'modal-backdrop';
+  back.innerHTML = `
+    <div class="modal">
+      <h3>${title}</h3>
+      <p>${desc}</p>
+      <div class="modal-actions">
+        <button class="btn" data-act="no">取消</button>
+        <button class="btn ${danger ? '' : 'btn-primary'}" style="${danger?'background:#FFD6D6;color:#C0392B;border:none':''}" data-act="yes">確認</button>
+      </div>
+    </div>`;
+  document.body.appendChild(back);
+  back.addEventListener('click', e => {
+    if (e.target === back || e.target.dataset.act === 'no') back.remove();
+    if (e.target.dataset.act === 'yes') { back.remove(); onYes(); }
+  });
+}
+
+/* ===== Seed Data ===== */
+function seedData() {
+  if (get('seeded')) return;
+  set('profile', { height: 162, age: 28, goalWeight: 50 });
+  const records = [
+    { date: daysAgo(14), weight: 57.0, waist: 73, hip: 95, thigh: 53, calf: 34, upperArm: 27.5, feel: '放鬆' },
+    { date: daysAgo(7),  weight: 56.5, waist: 72, hip: 94, thigh: 52.5, calf: 33.5, upperArm: 27, feel: '水腫' },
+    { date: daysAgo(3),  weight: 56.2, waist: 72, hip: 94, thigh: 52, calf: 33, upperArm: 27, feel: '放鬆' }
+  ];
+  set('bodyRecords', records);
+
+  const checkins = {};
+  // 過去 7 日部分有打卡
+  for (let i = 7; i >= 1; i--) {
+    const d = daysAgo(i);
+    checkins[d] = { up: Math.random() > 0.3, sleep: Math.random() > 0.4, skin: Math.random() > 0.5, sun: Math.random() > 0.4, water: Math.random() > 0.3, exercise: Math.random() > 0.6 };
+  }
+  checkins[todayStr()] = { up: false, sleep: false, skin: false, sun: false, water: false, exercise: false };
+  set('checkins', checkins);
+
+  set('mood', {
+    [daysAgo(3)]: { mood: '🙂', note: '今日做完運動好舒服，繼續努力' },
+    [daysAgo(5)]: { mood: '😊', note: '皮膚好咗少少，繼續注意飲食' },
+  });
+
+  set('dailyGoals', [
+    { id: 'sun_am_pm', label: '☀️ 早晚潔面 + 防曬', done: false },
+    { id: 'walk15', label: '🚶‍♀️ 行 15 分鐘街 / 拉筋', done: false },
+    { id: 'water15', label: '🥤 飲夠 1.5L 水', done: false }
+  ]);
+
+  set('waterToday', 0);
+  set('reminders', { up: '06:45', sleep: '22:30', skin: '21:30', stretch: true });
+  set('videoMap', { ...defaultVideoMap });
+  set('seeded', true);
+}
+
+/* ===== Navigation ===== */
+function switchPage(page) {
+  $$('.page').forEach(p => p.classList.remove('active'));
+  $$('.nav-item').forEach(n => n.classList.remove('active'));
+  const pageEl = document.getElementById('page-' + page);
+  const navEl = document.querySelector(`.nav-item[data-page="${page}"]`);
+  if (pageEl) pageEl.classList.add('active');
+  if (navEl) navEl.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (page === 'body') renderBodyPage();
+  if (page === 'skincare') renderSkincareVideos();
+  if (page === 'fitness') { renderFitPlan(); renderFitnessVideos(); }
+  if (page === 'style') { renderBodyType(); renderStyleVideos(); }
+  if (page === 'brighten') renderBrightenVideos();
+  if (page === 'videos') renderVideoLibrary();
+  if (page === 'checkin') renderCheckinPage();
+  if (page === 'settings') renderSettings();
+}
+
+$$('.nav-item').forEach(n => n.addEventListener('click', () => switchPage(n.dataset.page)));
+
+/* ===== Clock & Date ===== */
+function tickClock() {
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  $('#heroTime').textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  const days = ['日','一','二','三','四','五','六'];
+  $('#heroDate').textContent = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 · 星期${days[now.getDay()]}`;
+}
+setInterval(tickClock, 1000);
+tickClock();
+
+function rotateQuote() {
+  quoteIdx = (quoteIdx + 1) % QUOTES.length;
+  $('#heroQuote').textContent = QUOTES[quoteIdx];
+}
+setInterval(rotateQuote, 25000);
+
+/* ===== Goals (Home) ===== */
+function renderDailyGoals() {
+  const list = $('#goalList');
+  const goals = get('dailyGoals', []);
+  list.innerHTML = goals.map(g => `
+    <label class="goal-item ${g.done ? 'done' : ''}">
+      <input type="checkbox" data-id="${g.id}" ${g.done ? 'checked' : ''}>
+      <span class="label">${g.label}</span>
+    </label>`).join('');
+  $$('.goal-item input', list).forEach(cb => cb.addEventListener('change', e => {
+    const id = e.target.dataset.id;
+    const goals = get('dailyGoals', []);
+    const g = goals.find(x => x.id === id);
+    if (g) { g.done = e.target.checked; set('dailyGoals', goals); renderDailyGoals(); }
+  }));
+}
+
+/* ===== Check-in (Home + Checkin page) ===== */
+function renderCheckinButtons() {
+  const today = get('checkins', {})[todayStr()] || {};
+  $$('.checkin-btn').forEach(btn => {
+    const t = btn.dataset.type;
+    if (t && today[t]) btn.classList.add('checked'); else btn.classList.remove('checked');
+  });
+  const c = get('checkins', {})[todayStr()] || {};
+  const count = Object.values(c).filter(Boolean).length;
+  const el = $('#todayDoneNum');
+  if (el) el.textContent = count;
+}
+
+$$('.checkin-btn').forEach(btn => btn.addEventListener('click', () => {
+  const t = btn.dataset.type;
+  const checkins = get('checkins', {});
+  const today = checkins[todayStr()] || {};
+  today[t] = !today[t];
+  checkins[todayStr()] = today;
+  set('checkins', checkins);
+  renderCheckinButtons();
+  renderStreakBar();
+  renderRecentCheckins();
+  renderMonthlyStats();
+  renderBadges();
+  toast(today[t] ? `🍒 打卡成功：${btn.querySelector('span:nth-child(2)').textContent}` : '取消打卡');
+}));
+
+function renderStreakBar() {
+  const checkins = get('checkins', {});
+  let streak = 0;
+  for (let i = 0; i < 60; i++) {
+    const d = daysAgo(i);
+    const c = checkins[d] || {};
+    const done = c.up || c.skin || c.exercise || c.water;
+    if (done) streak++; else break;
+  }
+  $('#streakNum').textContent = streak;
+  const dots = [];
+  let done14 = 0;
+  for (let i = 13; i >= 0; i--) {
+    const d = daysAgo(i);
+    const c = checkins[d] || {};
+    const anyDone = Object.values(c).some(Boolean);
+    const isToday = i === 0;
+    const cls = isToday ? 'today' : (anyDone ? 'done' : '');
+    if (anyDone) done14++;
+    dots.push(`<div class="streak-dot ${cls}"></div>`);
+  }
+  $('#streakDots').innerHTML = dots.join('');
+  $('#streakTotal').textContent = `${done14}/14`;
+}
+
+/* ===== Personal Tip ===== */
+function renderPersonalTip() {
+  const records = get('bodyRecords', []);
+  if (records.length === 0) return;
+  const last = records[records.length - 1];
+  let tip = '';
+  if (last.feel === '水腫') tip = '近排感覺 <strong style="color:var(--cherry)">水腫</strong>，今晚睡前 2 小時少飲水，抬高雙腳 15 分鐘，聽日會消返 🍒';
+  else if (last.feel === '放鬆') tip = '感覺 <strong style="color:var(--cherry)">放鬆</strong>，肌少少肉就會更緊緻，記得做點阻力運動 🍒';
+  else if (last.feel === '緊實') tip = '身體狀態 <strong style="color:var(--cherry)">緊實</strong>，繼續保持而家嘅節奏！你做得好好 ✨';
+  else tip = '今日數據已記錄，繼續保持節奏，慢慢見到進步 🍒';
+  const el = $('#personalTip');
+  if (el) el.innerHTML = `<span class="tip-emoji">💕</span><span><strong>小丸子個人化反饋：</strong>${tip}</span>`;
+}
+
+/* ===== BODY PAGE ===== */
+function loadProfile() {
+  const p = get('profile', {});
+  $('#inHeight').value = p.height || '';
+  $('#inAge').value = p.age || '';
+  $('#inGoalWeight').value = p.goalWeight || '';
+}
+$('#saveProfileBtn').addEventListener('click', () => {
+  set('profile', {
+    height: parseFloat($('#inHeight').value) || 0,
+    age: parseInt($('#inAge').value) || 0,
+    goalWeight: parseFloat($('#inGoalWeight').value) || 0,
+  });
+  toast('🍒 基本資料已保存');
+  renderBodyPage();
+});
+
+$('#recDate').value = todayStr();
+
+function calcBMI(w, h) {
+  const m = h / 100;
+  return w / (m * m);
+}
+function bmiStatus(bmi) {
+  if (bmi < 18.5) return { label: '偏瘦', cls: 'warn' };
+  if (bmi < 25)   return { label: '標準', cls: 'good' };
+  if (bmi < 30)   return { label: '超重', cls: 'warn' };
+  return { label: '肥胖', cls: 'danger' };
+}
+function whrStatus(w, h) {
+  // 女性 WHR (NHS)
+  const r = w / h;
+  if (r < 0.80) return { label: '理想', cls: 'good' };
+  if (r < 0.85) return { label: '中等', cls: 'neutral' };
+  return { label: '偏高', cls: 'warn' };
+}
+function formatDate(d) {
+  const days = ['日','一','二','三','四','五','六'];
+  const dt = new Date(d);
+  return `${dt.getFullYear()}年${dt.getMonth()+1}月${dt.getDate()}日 (星期${days[dt.getDay()]})`;
+}
+
+function renderBodyPage() {
+  loadProfile();
+  const profile = get('profile', {});
+  const records = get('bodyRecords', []);
+  const latest = records[records.length - 1];
+
+  if (!latest) {
+    $('#latestResultCard').style.display = 'block';
+    $('#trendCard').style.display = 'none';
+    $('#analysisCard').style.display = 'none';
+    $('#historyCard').style.display = 'none';
+    return;
+  }
+
+  const bmi = calcBMI(latest.weight, profile.height);
+  const bs = bmiStatus(bmi);
+  const whr = latest.waist / latest.hip;
+  const ws = whrStatus(latest.waist, latest.hip);
+
+  // Latest result card
+  $('#latestResultBody').innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card pink"><div class="stat-value">${latest.weight.toFixed(1)}<span class="unit">kg</span></div><div class="stat-label">最新體重（${formatDate(latest.date)}）</div></div>
+      <div class="stat-card"><div class="stat-value">${bmi.toFixed(1)}<span class="unit">kg/m²</span></div><div class="stat-label">BMI · <span class="pill ${bs.cls}">${bs.label}</span></div></div>
+      <div class="stat-card yellow"><div class="stat-value">${whr.toFixed(2)}</div><div class="stat-label">腰臀比 · <span class="pill ${ws.cls}">${ws.label}</span></div></div>
+    </div>
+    <div class="stats-grid" style="margin-top:12px">
+      <div class="stat-card green"><div class="stat-value small">${latest.thigh}<span class="unit">cm</span></div><div class="stat-label">大腿圍</div></div>
+      <div class="stat-card purple"><div class="stat-value small">${latest.calf}<span class="unit">cm</span></div><div class="stat-label">小腿圍</div></div>
+      <div class="stat-card pink"><div class="stat-value small">${latest.upperArm}<span class="unit">cm</span></div><div class="stat-label">上臂圍</div></div>
+      <div class="stat-card yellow"><div class="stat-value small" style="font-size:18px">${latest.feel}</div><div class="stat-label">整體感覺</div></div>
+    </div>`;
+  $('#latestResultCard').style.display = 'block';
+  $('#trendCard').style.display = 'block';
+  $('#analysisCard').style.display = 'block';
+  $('#historyCard').style.display = 'block';
+
+  // Trend
+  if (records.length >= 2) {
+    const last3 = records.slice(-3);
+    const prev = last3.length >= 2 ? last3[last3.length - 2] : null;
+    const prevW = prev ? prev.weight : latest.weight;
+    const diffW = latest.weight - prevW;
+    const wCls = Math.abs(diffW) < 0.2 ? 'neutral' : (diffW < 0 ? 'good' : 'warn');
+    const wArrow = Math.abs(diffW) < 0.2 ? '＝' : (diffW < 0 ? '↓' : '↑');
+    const diffWaist = prev ? (latest.waist - prev.waist) : 0;
+    const waCls = Math.abs(diffWaist) < 0.5 ? 'neutral' : (diffWaist < 0 ? 'good' : 'warn');
+    const waArrow = Math.abs(diffWaist) < 0.5 ? '＝' : (diffWaist < 0 ? '↓' : '↑');
+    $('#trendBody').innerHTML = `
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <tr style="background:var(--cream)"><th style="padding:10px;text-align:left">指標</th><th style="padding:10px">上次</th><th style="padding:10px">最新</th><th style="padding:10px">變化</th></tr>
+        <tr><td style="padding:10px;border-top:1px solid var(--border)">體重</td><td style="padding:10px;text-align:center">${prevW.toFixed(1)} kg</td><td style="padding:10px;text-align:center;font-weight:700;color:var(--cherry)">${latest.weight.toFixed(1)} kg</td><td style="padding:10px;text-align:center"><span class="trend ${wCls}">${wArrow} ${Math.abs(diffW).toFixed(1)} kg</span></td></tr>
+        <tr><td style="padding:10px;border-top:1px solid var(--border)">腰圍</td><td style="padding:10px;text-align:center">${prev?prev.waist:'—'} cm</td><td style="padding:10px;text-align:center;font-weight:700;color:var(--cherry)">${latest.waist} cm</td><td style="padding:10px;text-align:center"><span class="trend ${waCls}">${waArrow} ${Math.abs(diffWaist).toFixed(1)} cm</span></td></tr>
+        <tr><td style="padding:10px;border-top:1px solid var(--border)">臀圍</td><td style="padding:10px;text-align:center">${prev?prev.hip:'—'} cm</td><td style="padding:10px;text-align:center;font-weight:700;color:var(--cherry)">${latest.hip} cm</td><td style="padding:10px;text-align:center">—</td></tr>
+      </table>
+      <p style="margin-top:12px;font-size:13px;color:var(--text-light)"><span class="trend good">綠</span> = 進步 ｜ <span class="trend neutral">灰</span> = 維持 ｜ <span class="trend warn">橙</span> = 調整方向</p>`;
+  } else {
+    $('#trendBody').innerHTML = '<div class="empty">需要至少 2 條記錄先有得對比</div>';
+  }
+
+  // Analysis
+  let analysisHTML = '';
+  if (profile.height) {
+    const idealLow = 18.5 * (profile.height/100) * (profile.height/100);
+    const idealHigh = 24 * (profile.height/100) * (profile.height/100);
+    analysisHTML += `<div style="margin-bottom:14px">
+      <div style="font-weight:700;color:var(--text-cherry);margin-bottom:6px">📊 BMI 解讀</div>
+      <div style="font-size:14px;line-height:1.7">你嘅 BMI 係 <strong>${bmi.toFixed(1)}</strong>，屬於 <span class="pill ${bs.cls}">${bs.label}</span>。<br>
+      基於身高 ${profile.height}cm，理想體重範圍係 <strong>${idealLow.toFixed(1)} – ${idealHigh.toFixed(1)} kg</strong>。<br>
+      健康減速：<strong>每週 0.5kg 最安全 ✅</strong>，急減反而會反彈。</div>
+    </div>`;
+  }
+
+  analysisHTML += `<div style="margin-bottom:14px">
+    <div style="font-weight:700;color:var(--text-cherry);margin-bottom:6px">📐 腰臀比分析</div>
+    <div style="font-size:14px;line-height:1.7">腰臀比 <strong>${whr.toFixed(2)}</strong>，${ws.label === '理想' ? '非常好，繼續保持！' : ws.label === '中等' ? '可以再收緊少少，飲食 + 腰腹運動並行' : '重點減肚腩 + 收緊腰線，建議每日做 10 分鐘腰腹訓練'}</div>
+  </div>`;
+
+  if (latest.thigh > 52) {
+    analysisHTML += `<div style="margin-bottom:14px">
+      <div style="font-weight:700;color:var(--text-cherry);margin-bottom:6px">🦵 腿部分析</div>
+      <div style="font-size:14px;line-height:1.7">大腿圍 ${latest.thigh}cm，建議加入瘦腿拉筋 + 深蹲動作，重點雕塑線條。</div>
+    </div>`;
+  }
+
+  if (profile.goalWeight) {
+    const diff = latest.weight - profile.goalWeight;
+    analysisHTML += `<div style="margin-bottom:14px">
+      <div style="font-weight:700;color:var(--text-cherry);margin-bottom:6px">🎯 4 週目標</div>
+      <div style="font-size:14px;line-height:1.7">目標體重 <strong>${profile.goalWeight} kg</strong>，距離 <strong>${Math.abs(diff).toFixed(1)} kg</strong>。<br>
+      健康進度：每週 -0.5kg × 4 週 = -2kg，4 週後約 ${(latest.weight - 2).toFixed(1)} kg。<br>
+      重點部位：${diff > 0 ? '腰腹 + 大腿' : '保持現狀'}。</div>
+    </div>`;
+  }
+
+  analysisHTML += `<div class="tip-card gentle" style="margin-top:14px">
+    <span class="tip-emoji">🍒</span>
+    <span><strong>小丸子反饋：</strong>今日又記錄啦！數據唔會講大話，慢慢睇住進步就好 ✨</span>
+  </div>`;
+
+  $('#analysisBody').innerHTML = analysisHTML;
+
+  // History
+  $('#historyList').innerHTML = records.slice().reverse().map(r => `
+    <div class="list-item">
+      <span style="font-size:20px">📅</span>
+      <div class="left">
+        <div class="title">${formatDate(r.date)} · ${r.weight}kg · 腰 ${r.waist}cm</div>
+        <div class="meta">臀 ${r.hip}cm · 大腿 ${r.thigh}cm · 小腿 ${r.calf}cm · 上臂 ${r.upperArm}cm · ${r.feel}</div>
+      </div>
+      <button class="btn btn-icon btn-soft" data-del="${r.date}" title="刪除">🗑️</button>
+    </div>`).join('') || '<div class="empty">暫無記錄</div>';
+  $$('[data-del]').forEach(b => b.addEventListener('click', e => {
+    const d = e.currentTarget.dataset.del;
+    confirmModal('刪除記錄？', `確定要刪除 ${d} 嘅身體記錄？`, () => {
+      const recs = get('bodyRecords', []).filter(r => r.date !== d);
+      set('bodyRecords', recs);
+      renderBodyPage();
+      toast('已刪除');
+    }, true);
+  }));
+}
+
+$('#clearRecordBtn').addEventListener('click', () => {
+  ['recWeight','recWaist','recHip','recThigh','recCalf','recUpper','recFeel'].forEach(id => {
+    const el = $('#'+id); if (el) el.value = (id === 'recDate' ? todayStr() : '');
+  });
+  $('#recDate').value = todayStr();
+});
+
+$('#saveRecordBtn').addEventListener('click', () => {
+  const profile = get('profile', {});
+  const w = parseFloat($('#recWeight').value);
+  const wa = parseFloat($('#recWaist').value);
+  const hi = parseFloat($('#recHip').value);
+  if (!w || !wa || !hi) { toast('請輸入體重、腰圍、臀圍先 🍒'); return; }
+  if (!profile.height) { toast('請先輸入身高先可以計算 BMI 🍒'); switchPage('body'); return; }
+  const rec = {
+    date: $('#recDate').value || todayStr(),
+    weight: w,
+    waist: wa,
+    hip: hi,
+    thigh: parseFloat($('#recThigh').value) || 0,
+    calf: parseFloat($('#recCalf').value) || 0,
+    upperArm: parseFloat($('#recUpper').value) || 0,
+    feel: $('#recFeel').value || '其他'
+  };
+  const records = get('bodyRecords', []);
+  const idx = records.findIndex(r => r.date === rec.date);
+  if (idx >= 0) records[idx] = rec; else records.push(rec);
+  records.sort((a,b) => a.date.localeCompare(b.date));
+  set('bodyRecords', records);
+  toast('💕 數據已儲存，分析已更新！');
+  renderBodyPage();
+  renderPersonalTip();
+  renderFitPlan();
+  renderBodyType();
+});
+
+/* ===== Skincare ===== */
+const quizQuestions = [
+  { q: '洗完面半小時後嘅感覺？', options: [{l:'好乾好緊繃',v:'乾'},{l:'有少少油光',v:'油'},{l:'T 位油、兩頰乾',v:'混合'},{l:'有時紅、痕、刺',v:'敏感'}] },
+  { q: '鼻頭毛孔明顯嗎？', options: [{l:'好細',v:'乾'},{l:'好明顯',v:'油'},{l:'T 位明顯、頰唔覺',v:'混合'},{l:'唔太清楚',v:'敏感'}] },
+  { q: '化妝後幾個鐘最容易脫妝？', options: [{l:'唔化妝',v:'乾'},{l:'鼻頭 + 額頭',v:'油'},{l:'只有 T 位',v:'混合'},{l:'好易紅',v:'敏感'}] },
+];
+let quizAns = [];
+function renderQuiz() {
+  quizAns = [];
+  $('#quizBox').innerHTML = quizQuestions.map((q, qi) => `
+    <div style="margin-bottom:18px;padding-bottom:14px;border-bottom:1px dashed var(--border)">
+      <div style="font-weight:700;color:var(--text-cherry);margin-bottom:10px">${qi+1}. ${q.q}</div>
+      <div class="input-row">
+        ${q.options.map((o, oi) => `<button class="btn btn-soft" data-q="${qi}" data-o="${oi}" data-v="${o.v}">${o.l}</button>`).join('')}
+      </div>
+    </div>`).join('') + `<div id="quizResult" style="margin-top:14px"></div>`;
+  $$('#quizBox .btn').forEach(b => b.addEventListener('click', e => {
+    const qi = +e.currentTarget.dataset.q;
+    quizAns[qi] = e.currentTarget.dataset.v;
+    e.currentTarget.parentElement.querySelectorAll('.btn').forEach(x => x.classList.remove('btn-primary'));
+    e.currentTarget.classList.add('btn-primary');
+    if (quizAns.filter(Boolean).length === quizQuestions.length) showQuizResult();
+  }));
+}
+function showQuizResult() {
+  const counts = {};
+  quizAns.forEach(v => counts[v] = (counts[v]||0)+1);
+  const top = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0];
+  const rec = {
+    乾: { name: '乾性肌', care: '揀溫和潔面 + 厚重面霜，避免酒精爽膚水', products: 'CeraVe 保湿霜 / La Roche-Posay 卸妝水 / 維他命E精華' },
+    油: { name: '油性肌', care: '深層清潔 + 控油精華，避免過度清潔反刺激', products: 'The Ordinary 煙酰胺 / Simple 潔面 / BHA 水楊酸精華' },
+    混合: { name: '混合肌', care: 'T 位控油、兩頰保濕，分區護理', products: 'Clinique 平衡系列 / The Ordinary Glycolic / Hada Labo 化妝水' },
+    敏感: { name: '敏感肌', care: '揀無香料、低敏配方，唔好用酸類', products: 'La Roche-Posay 抗敏系列 / CeraVe 溫和潔面 / Bioderma 卸妝水' }
+  }[top];
+  $('#quizResult').innerHTML = `
+    <div class="tip-card urgent">
+      <span class="tip-emoji">🍒</span>
+      <span><strong>你係 ${rec.name}！</strong></span>
+    </div>
+    <div style="margin-top:12px;padding:14px;background:var(--cream);border-radius:var(--radius-md);font-size:14px;line-height:1.7">
+      <strong style="color:var(--text-cherry)">護理重點：</strong>${rec.care}<br>
+      <strong style="color:var(--text-cherry)">英國入手：</strong>${rec.products}
+    </div>
+    <button class="btn btn-soft" style="margin-top:12px" onclick="renderQuiz()">🔄 再測一次</button>`;
+}
+
+/* ===== Video renderer ===== */
+function renderVideoList(container, keys) {
+  const map = get('videoMap') || defaultVideoMap;
+  container.innerHTML = keys.map(k => {
+    if (!videoMeta[k]) return '';
+    const meta = videoMeta[k];
+    const id = map[k] || 'dQw4w9WgXcQ';
+    return `<div class="video-card">
+      <div class="video-frame">
+        <span class="video-edit-badge">🍒 ${k}</span>
+        <iframe src="https://www.youtube.com/embed/${id}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+      </div>
+      <div class="video-title">${meta.title}</div>
+      <div class="video-meta">${meta.meta}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ===== Per-page video renders ===== */
+function renderSkincareVideos() {
+  renderVideoList($('#skincareVideoList'), ['skincare_wash','skincare_spf','skincare_type']);
+}
+function renderFitnessVideos() {
+  renderVideoList($('#fitnessVideoList'), ['fitness_full','fitness_abs','fitness_leg']);
+}
+function renderStyleVideos() {
+  renderVideoList($('#styleVideoList'), ['style_dress','style_budget','style_winter']);
+}
+function renderBrightenVideos() {
+  renderVideoList($('#brightenVideoList'), ['brighten_start','brighten_serum','brighten_glow']);
+}
+function renderVideoLibrary() {
+  const cats = [
+    { id: 'skincare', emoji: '🧴', title: '護膚', keys: ['vid_skincare1','vid_skincare2','skincare_wash','skincare_spf','skincare_type'] },
+    { id: 'fitness', emoji: '🏃‍♀️', title: '減肥塑形', keys: ['fitness_full','fitness_abs','fitness_leg','vid_fitness1','vid_fitness2','vid_fitness3'] },
+    { id: 'style', emoji: '👗', title: '穿搭', keys: ['style_dress','style_budget','style_winter','vid_style1','vid_style2'] },
+    { id: 'brighten', emoji: '✨', title: '美白亮膚', keys: ['brighten_start','brighten_serum','brighten_glow','vid_brighten1','vid_brighten2','vid_brighten3'] }
+  ];
+  $('#videoLibrary').innerHTML = cats.map(c => `
+    <div class="video-category">
+      <div class="category-header"><span class="emoji">${c.emoji}</span><h3>${c.title}</h3><span style="margin-left:auto;font-size:12px;color:var(--text-light);font-weight:600">${c.keys.length} 條</span></div>
+      <div id="cat-${c.id}"></div>
+    </div>
+  `).join('');
+  cats.forEach(c => renderVideoList($('#cat-'+c.id), c.keys));
+}
+
+/* ===== Fitness Plan ===== */
+function renderFitPlan() {
+  const records = get('bodyRecords', []);
+  const profile = get('profile', {});
+  if (records.length === 0 || !profile.height) {
+    $('#fitPlanCard').style.display = 'block';
+    $('#fitPlanBody').classList.add('empty');
+    return;
+  }
+  const last = records[records.length - 1];
+  const bmi = calcBMI(last.weight, profile.height);
+  const whr = last.waist / last.hip;
+
+  let reco = [];
+  if (bmi >= 25) reco.push({emoji:'🔥',title:'全身燒脂 HIIT',desc:'15 分鐘高強度，全身脂肪同步燃燒'});
+  if (whr >= 0.85 || last.waist >= 70) reco.push({emoji:'💪',title:'腰腹集中收緊',desc:'捲腹、平板、側腰，10 分鐘雕琢線條'});
+  if (last.thigh >= 52) reco.push({emoji:'🦵',title:'瘦腿塑形',desc:'深蹲、抬腿、拉筋，消除假胯寬'});
+  if (last.feel === '水腫') reco.push({emoji:'💧',title:'消水腫拉伸',desc:'淋巴引流動作 + 抬高雙腳'});
+
+  if (reco.length === 0) reco.push({emoji:'🌟',title:'保持現狀！',desc:'繼續維持良好習慣，做你鍾意嘅運動就好'});
+
+  $('#fitPlanBody').classList.remove('empty');
+  $('#fitPlanBody').innerHTML = `
+    <div style="font-size:13px;color:var(--text-light);margin-bottom:12px;font-weight:600">基於你 ${formatDate(last.date)} 嘅數據：</div>
+    <div class="list">
+      ${reco.map(r => `<div class="list-item"><span style="font-size:22px">${r.emoji}</span><div class="left"><div class="title">${r.title}</div><div class="meta">${r.desc}</div></div></div>`).join('')}
+    </div>`;
+}
+
+/* ===== Body Type ===== */
+function renderBodyType() {
+  const records = get('bodyRecords', []);
+  const profile = get('profile', {});
+  if (records.length === 0 || !profile.height) return;
+
+  const last = records[records.length - 1];
+  const whr = last.waist / last.hip;
+  const bmi = calcBMI(last.weight, profile.height);
+
+  let type = 'H 型（直筒）';
+  if (whr >= 0.80) type = '蘋果形（腰圍較粗）';
+  else if (whr < 0.70 && last.hip > last.waist + 22) type = '梨形（臀圍大）';
+  else if (whr >= 0.67 && whr < 0.80 && Math.abs(last.waist - last.hip) < 3) type = '沙漏形';
+
+  $('#bodyTypeBody').classList.remove('empty');
+  $('#bodyTypeBody').innerHTML = `
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="font-size:42px;margin-bottom:6px">👗</div>
+      <div style="font-size:20px;font-weight:800;color:var(--text-cherry)">${type}</div>
+      <div style="font-size:13px;color:var(--text-light);margin-top:4px">基於腰臀比 ${whr.toFixed(2)} / BMI ${bmi.toFixed(1)}</div>
+    </div>
+    <div class="list">
+      <div class="list-item"><span>✂️</span><div class="left"><div class="title">推薦剪裁</div><div class="meta">${type.includes('蘋果') ? 'A 字裙、V 領上身、深色上衣' : type.includes('梨') ? '上身亮色下身深色、高腰褲、傘裙' : type.includes('沙漏') ? '修身連衣裙、腰帶突出曲線' : '層次搭配、寬鬆上衣 + 直筒褲'}</div></div></div>
+      <div class="list-item"><span>👚</span><div class="left"><div class="title">推薦領口</div><div class="meta">V 領 / 方領顯瘦顯頸長，避高圓領</div></div></div>
+      <div class="list-item"><span>📏</span><div class="left"><div class="title">推薦長度</div><div class="meta">裙長膝蓋上下、褲高腰 2cm 即見長腿</div></div></div>
+    </div>`;
+}
+
+/* ===== Tab switchers (Skincare + Checkin) ===== */
+$$('#skinTabs .tab').forEach(t => t.addEventListener('click', () => {
+  const target = t.dataset.tab;
+  $$('#skinTabs .tab').forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  $$('.skin-tab').forEach(x => x.style.display = 'none');
+  $('#skinTab-' + target).style.display = 'block';
+  if (target === 'type') renderQuiz();
+  if (target === 'videos') renderSkincareVideos();
+}));
+
+/* ===== Water/Sleep/Salt ===== */
+function renderWater() { $('#waterNow').textContent = (get('waterToday',0) / 1000).toFixed(1) + 'L'; }
+function addWater() { const w = get('waterToday',0) + 250; set('waterToday', w); renderWater(); toast('💧 +250ml'); }
+function addSalt() { const s = get('saltToday',0) + 1; set('saltToday', s); $('#saltToday').textContent = s; toast('記錄咗一餐重口味'); }
+function logSleep() {
+  const v = prompt('昨晚瞓咗幾多個鐘？（例如 7.5）', '7.5');
+  if (v && !isNaN(v)) {
+    set('lastSleep', parseFloat(v));
+    $('#sleepLog').textContent = v + 'h';
+    toast('💤 已記錄睡眠');
+  }
+}
+
+/* ===== Checkin page ===== */
+function renderRecentCheckins() {
+  const checkins = get('checkins', {});
+  const recent = [];
+  for (let i = 0; i < 7; i++) {
+    const d = daysAgo(i);
+    const c = checkins[d] || {};
+    const done = Object.values(c).filter(Boolean).length;
+    recent.push({ date: d, count: done, total: 6, items: c });
+  }
+  $('#recentCheckins').innerHTML = `
+    <div class="list">
+      ${recent.map(r => `
+        <div class="list-item">
+          <span style="font-size:22px">${r.count >= 4 ? '🔥' : r.count > 0 ? '✨' : '○'}</span>
+          <div class="left">
+            <div class="title">${i === 0 ? '今日' : i === 1 ? '昨日' : formatDate(r.date)}</div>
+            <div class="meta">完成 ${r.count}/6 項 · ${Object.entries(r.items).filter(([k,v])=>v).map(([k])=>k).join('、') || '未有打卡'}</div>
+          </div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function renderMonthlyStats() {
+  const checkins = get('checkins', {});
+  const month = new Date().getMonth();
+  const year = new Date().getFullYear();
+  let total = 0, count = 0, days = 0;
+  Object.entries(checkins).forEach(([d, c]) => {
+    const dt = new Date(d);
+    if (dt.getMonth() === month && dt.getFullYear() === year) {
+      days++;
+      Object.values(c).forEach(v => v ? total++ : null);
+      count += Object.values(c).filter(Boolean).length;
+    }
+  });
+  const totalPossible = days * 6;
+  const rate = totalPossible ? Math.round(count / totalPossible * 100) : 0;
+
+  $('#monthlyStats').innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card pink"><div class="stat-value">${days}</div><div class="stat-label">本月有打卡嘅日數</div></div>
+      <div class="stat-card yellow"><div class="stat-value">${count}</div><div class="stat-label">完成打卡總數</div></div>
+      <div class="stat-card green"><div class="stat-value">${rate}%</div><div class="stat-label">完成率</div></div>
+    </div>
+    <div class="tip-card gentle" style="margin-top:14px">
+      <span class="tip-emoji">🍒</span>
+      <span><strong>小丸子打氣：</strong>${rate >= 70 ? '做得好！保持節奏就會見到效果 ✨' : rate >= 40 ? '做得唔錯，再加少少 💪' : '慢慢嚟，每日進步 1% 🍒'}</span>
+    </div>`;
+}
+
+function renderBadges() {
+  const checkins = get('checkins', {});
+  const records = get('bodyRecords', []);
+
+  // 計算 streak
+  let streak = 0;
+  for (let i = 0; i < 365; i++) {
+    const c = checkins[daysAgo(i)] || {};
+    if (Object.values(c).some(Boolean)) streak++; else break;
+  }
+
+  // 計算體重變化
+  let weightLoss = 0;
+  if (records.length >= 2) {
+    weightLoss = records[0].weight - records[records.length-1].weight;
+  }
+
+  // 計算腰圍變化
+  let waistLoss = 0;
+  if (records.length >= 2) {
+    waistLoss = records[0].waist - records[records.length-1].waist;
+  }
+
+  const badges = [
+    { emoji:'🌅', name:'早起鳥', desc:'連續 7 日早起', unlocked: streak >= 7 },
+    { emoji:'🌙', name:'夜貓子', desc:'連續 7 日 23:00 前瞓', unlocked: false },
+    { emoji:'🧴', name:'防曬達人', desc:'連續 14 日搽防曬', unlocked: false },
+    { emoji:'🏃‍♀️', name:'運動新手', desc:'完成 10 次運動打卡', unlocked: false },
+    { emoji:'🥤', name:'水做的', desc:'連續 7 日飲夠水', unlocked: false },
+    { emoji:'📏', name:'量體重專家', desc:'記錄 5 次體重', unlocked: records.length >= 5 },
+    { emoji:'🍒', name:'減 1kg', desc:'體重下降 1kg', unlocked: weightLoss >= 1 },
+    { emoji:'💋', name:'收腰 1cm', desc:'腰圍減 1cm', unlocked: waistLoss >= 1 },
+    { emoji:'✨', name:'28 日完美', desc:'28 日全勤', unlocked: false },
+    { emoji:'👑', name:'變美達人', desc:'解鎖以上全部！', unlocked: false },
+    { emoji:'🌸', name:'櫻花季', desc:'連續 30 日打卡', unlocked: streak >= 30 },
+    { emoji:'🍰', name:'小丸子慶祝', desc:'連續 21 日（解鎖小丸子畫面）', unlocked: streak >= 21 },
+  ];
+
+  const unlockedCount = badges.filter(b => b.unlocked).length;
+  $('#badgeGrid').innerHTML = badges.map(b => `
+    <div class="badge ${b.unlocked ? '' : 'locked'}">
+      <span class="emoji">${b.emoji}</span>
+      <span class="name">${b.name}</span>
+      <span class="desc">${b.desc}</span>
+    </div>`).join('');
+
+  // Check new badges
+  const lastCount = get('lastBadgeCount', 0);
+  if (unlockedCount > lastCount && lastCount > 0) {
+    const newOnes = badges.filter(b => b.unlocked).slice(-(unlockedCount - lastCount));
+    newOnes.forEach(b => celebrateBadge(b));
+  }
+  set('lastBadgeCount', unlockedCount);
+}
+
+function celebrateBadge(badge) {
+  toast(`🎉 解鎖勳章：${badge.emoji} ${badge.name}`);
+  // Confetti
+  for (let i = 0; i < 12; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = (Math.random() * 100) + 'vw';
+    c.style.animationDelay = (Math.random() * 0.5) + 's';
+    c.textContent = ['🍒','🌸','✨','💕','🎉'][Math.floor(Math.random()*5)];
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 2000);
+  }
+}
+
+/* ===== Mood ===== */
+function renderMood() {
+  const todayMood = (get('mood',{})[todayStr()] || {}).mood;
+  const todayNote = (get('mood',{})[todayStr()] || {}).note || '';
+  $$('#moodRow .mood-btn').forEach(b => {
+    b.classList.toggle('selected', b.dataset.mood === todayMood);
+  });
+  $('#moodNote').value = todayNote;
+}
+$$('#moodRow .mood-btn').forEach(b => b.addEventListener('click', e => {
+  const mood = e.currentTarget.dataset.mood;
+  const m = get('mood', {});
+  const t = m[todayStr()] || {};
+  if (t.mood === mood) {
+    delete m[todayStr()];
+    e.currentTarget.classList.remove('selected');
+  } else {
+    t.mood = mood;
+    m[todayStr()] = t;
+    $$('#moodRow .mood-btn').forEach(x => x.classList.remove('selected'));
+    e.currentTarget.classList.add('selected');
+  }
+  set('mood', m);
+}));
+
+$('#saveMoodBtn').addEventListener('click', () => {
+  const note = $('#moodNote').value.trim();
+  const m = get('mood', {});
+  const t = m[todayStr()] || {};
+  t.note = note;
+  t.date = todayStr();
+  m[todayStr()] = t;
+  set('mood', m);
+  toast('🍒 心情已記錄');
+});
+
+function renderCheckinPage() {
+  renderCheckinButtons();
+  renderMood();
+  renderRecentCheckins();
+  renderMonthlyStats();
+  renderBadges();
+}
+
+/* ===== Settings ===== */
+function renderSettings() {
+  const r = get('reminders', {});
+  if ($('#remindUp').value = r.up || '06:45', false) {} // set via .value
+  $('#remindUp').value = r.up || '06:45';
+  $('#remindSleep').value = r.sleep || '22:30';
+  $('#remindSkin').value = r.skin || '21:30';
+  $('#toggleStretch').classList.toggle('on', r.stretch);
+
+  // Video ID editor
+  const map = get('videoMap', defaultVideoMap);
+  $('#videoIdEditor').innerHTML = Object.keys(defaultVideoMap).map(k => `
+    <div class="input-group">
+      <label>${videoMeta[k] ? videoMeta[k].title : k} <span style="color:var(--text-light);font-weight:500">(${k})</span></label>
+      <input type="text" class="input" data-vkey="${k}" value="${map[k] || ''}" placeholder="YouTube Video ID">
+    </div>`).join('');
+}
+
+$('#remindUp').addEventListener('change', e => { const r = get('reminders',{}); r.up = e.target.value; set('reminders', r); });
+$('#remindSleep').addEventListener('change', e => { const r = get('reminders',{}); r.sleep = e.target.value; set('reminders', r); });
+$('#remindSkin').addEventListener('change', e => { const r = get('reminders',{}); r.skin = e.target.value; set('reminders', r); });
+$('#toggleStretch').addEventListener('click', e => { e.currentTarget.classList.toggle('on'); const r = get('reminders',{}); r.stretch = e.currentTarget.classList.contains('on'); set('reminders', r); });
+
+$('#saveVideoIdsBtn').addEventListener('click', () => {
+  const map = {};
+  $$('#videoIdEditor [data-vkey]').forEach(i => {
+    const v = i.value.trim();
+    if (v) map[i.dataset.vkey] = v;
+  });
+  set('videoMap', map);
+  toast('🍒 影片 ID 已保存，下次顯示即更新');
+});
+
+$('#restoreVideoDefaultBtn').addEventListener('click', () => {
+  confirmModal('還原預設影片 ID？', '你之前設定嘅自訂 ID 會被覆蓋，呢個動作可以重來。', () => {
+    set('videoMap', { ...defaultVideoMap });
+    renderSettings();
+    toast('已還原預設影片 ID');
+  });
+});
+
+$('#exportBtn').addEventListener('click', () => {
+  const data = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k.startsWith(KEY)) {
+      try { data[k.replace(KEY,'')] = JSON.parse(localStorage.getItem(k)); } catch {}
+    }
+  }
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `小丸子變美日記_備份_${todayStr()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('💾 備份已下載');
+});
+
+$('#importBtn').addEventListener('click', () => $('#importFile').click());
+$('#importFile').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      confirmModal('導入備份？', '將會覆蓋現有所有數據，確定繼續？', () => {
+        Object.entries(data).forEach(([k, v]) => localStorage.setItem(KEY + k, JSON.stringify(v)));
+        toast('💕 還原成功，即將重新整理');
+        setTimeout(() => location.reload(), 1000);
+      }, true);
+    } catch (err) {
+      toast('導入失敗：' + err.message);
+    }
+  };
+  reader.readAsText(f);
+  e.target.value = '';
+});
+
+$('#clearAllBtn').addEventListener('click', () => {
+  confirmModal('⚠️ 確定清空所有數據？', '所有身體記錄、打卡、設定、心情都會被刪除，<strong style="color:#C0392B">無法復原</strong>。建議先導出備份。', () => {
+    Object.keys(localStorage).filter(k => k.startsWith(KEY)).forEach(k => localStorage.removeItem(k));
+    toast('已清空，即將重新整理');
+    setTimeout(() => location.reload(), 800);
+  }, true);
+});
+
+/* ===== Init ===== */
+function init() {
+  seedData();
+  renderDailyGoals();
+  renderCheckinButtons();
+  renderStreakBar();
+  renderPersonalTip();
+  renderWater();
+  $('#sleepLog').textContent = (get('lastSleep') || '—') + (get('lastSleep') ? 'h' : '');
+  $('#saltToday').textContent = get('saltToday', 0);
+}
+init();
+
+/* ===== Periodic refresh of date/time dependent bits ===== */
+setInterval(() => {
+  renderStreakBar();
+  renderCheckinButtons();
+}, 60000);
+
+/* ===== Service Worker-style: Re-check day boundary ===== */
+let lastDay = todayStr();
+setInterval(() => {
+  const t = todayStr();
+  if (t !== lastDay) {
+    lastDay = t;
+    set('waterToday', 0);
+    set('saltToday', 0);
+    renderWater();
+    renderCheckinButtons();
+    renderDailyGoals();
+  }
+}, 30000);
+
+</script>
+</body>
+</html>
