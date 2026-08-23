@@ -983,58 +983,58 @@ const daysAgo = (n) => { const d = new Date(Date.now() - n*86400000); return d.t
 
 /* ===== Default Video Map ===== */
 const defaultVideoMap = {
-  // === 你 KOL 名單 confirmed IDs ===
-  // 護膚（程十安/姜乘瀾/駱王宇主要係抖音，冇 YouTube ID；ah Veee 搵唔到）
-  skincare_wash:    'zQF2wsoA34w',  // fallback: 廣東話椅子瑜伽
-  skincare_spf:     'ltrsTYGXMas',  // fallback: 粵語太極八段錦
-  skincare_type:    'zQF2wsoA34w',
-  // 輕盈體態 — 你嘅 KOL confirmed IDs！
-  fitness_full:     '1skBf6h2ksI',  // Pamela Reif 15min HIIT 全身燃脂
-  fitness_abs:       'jC5xlKIQgR8',  // Pamela Reif 6min Brutal AB 馬甲線
-  fitness_leg:       'Rr8CEyQ3-5k',  // Coffee 林芊妤 20min 特強大腿操
-  // 穿搭（冇 confirmed 穿搭 KOL ID；暫用 Pamela 健身片）
-  style_dress:       'CDhyNUjRHAg',  // Pamela 10min upper body（待換穿搭）
-  style_budget:     'zQF2wsoA34w',
-  style_winter:     'aRsF6K3_HAw',  // 練功十八法
-  // 美白（冇 confirmed IDs）
-  brighten_start:   'zQF2wsoA34w',
-  brighten_serum:   'ltrsTYGXMas',
-  brighten_glow:    'LAeOJH_OIks',  // Pamela 10min legs（待換美白片）
-  // 影片館 — 多樣化 KOL 精選
-  vid_skincare1:    'zQF2wsoA34w',
-  vid_skincare2:    'ltrsTYGXMas',
-  vid_fitness1:     '1skBf6h2ksI',  // Pamela HIIT
-  vid_fitness2:     'Rr8CEyQ3-5k',  // Coffee 大腿操
-  vid_fitness3:     'Cw-Wt4xKD2s',  // Pamela 15min 舞蹈新手
-  vid_style1:       'CDhyNUjRHAg',  // Pamela upper body
-  vid_style2:       'aRsF6K3_HAw',
-  vid_brighten1:    'zQF2wsoA34w',
-  vid_brighten2:    'jC5xlKIQgR8',  // Pamela abs
-  vid_brighten3:    'LAeOJH_OIks',  // Pamela legs
+  // 全部用 confirmed KOL IDs (Pamela Reif 5 條 + Coffee 林芊妤 1 條)
+  // 護膚 (用 Pamela 健身片暫代，等待用戶 send 真正護膚片 ID)
+  skincare_wash:    'Cw-Wt4xKD2s',  // Pamela 舞蹈新手
+  skincare_spf:     '1skBf6h2ksI',  // Pamela HIIT
+  skincare_type:    'Cw-Wt4xKD2s',
+  // 輕盈體態 — confirmed KOL
+  fitness_full:     '1skBf6h2ksI',  // Pamela 15min HIIT
+  fitness_abs:       'jC5xlKIQgR8',  // Pamela 6min AB
+  fitness_leg:       'Rr8CEyQ3-5k',  // Coffee 20min 大腿操
+  // 穿搭
+  style_dress:       'CDhyNUjRHAg',  // Pamela 10min Upper Body
+  style_budget:     'Cw-Wt4xKD2s',  // Pamela 舞蹈
+  style_winter:     'LAeOJH_OIks',  // Pamela 10min Legs
+  // 美白
+  brighten_start:   '1skBf6h2ksI',
+  brighten_serum:   'jC5xlKIQgR8',
+  brighten_glow:    'LAeOJH_OIks',
+  // 影片館
+  vid_skincare1:    'Cw-Wt4xKD2s',
+  vid_skincare2:    '1skBf6h2ksI',
+  vid_fitness1:     '1skBf6h2ksI',
+  vid_fitness2:     'Rr8CEyQ3-5k',
+  vid_fitness3:     'Cw-Wt4xKD2s',
+  vid_style1:       'CDhyNUjRHAg',
+  vid_style2:       'LAeOJH_OIks',
+  vid_brighten1:    'Cw-Wt4xKD2s',
+  vid_brighten2:    'jC5xlKIQgR8',
+  vid_brighten3:    'LAeOJH_OIks',
 };
 const videoMeta = {
-  skincare_wash:   { title: '🧴 護膚 fallback（廣東話瑜伽）', meta: '暫 — 設定頁改 ID', category: 'skincare' },
-  skincare_spf:    { title: '☀️ 防曬 fallback（粵語八段錦）', meta: '暫 — 設定頁改 ID', category: 'skincare' },
-  skincare_type:   { title: '🔍 膚質自測 fallback', meta: '暫 — 設定頁改 ID', category: 'skincare' },
+  skincare_wash:   { title: '🏃‍♀️ Pamela Reif · 15min 舞蹈燃脂', meta: '新手友好·暫用', category: 'skincare' },
+  skincare_spf:    { title: '🔥 Pamela Reif · 15min HIIT 全身', meta: '暫用·設定頁改 ID', category: 'skincare' },
+  skincare_type:   { title: '🏃‍♀️ Pamela Reif · 15min 舞蹈燃脂', meta: '暫用·設定頁改 ID', category: 'skincare' },
   fitness_full:    { title: '🏃‍♀️ Pamela Reif · 15min HIIT 全身燃脂', meta: '德國健身女神·無裝備', category: 'fitness' },
   fitness_abs:     { title: '💪 Pamela Reif · 6min Brutal AB 馬甲線', meta: '地獄級腹肌訓練', category: 'fitness' },
   fitness_leg:     { title: '🦵 Coffee 林芊妤 · 20min 特強大腿操', meta: '廣東話·減外側內側+提臀', category: 'fitness' },
-  style_dress:     { title: '💪 Pamela Reif · 10min Upper Body', meta: '暫用 — 設定頁改穿搭 ID', category: 'style' },
-  style_budget:    { title: '👗 穿搭 fallback', meta: '暫 — 設定頁改 ID', category: 'style' },
-  style_winter:    { title: '🧥 秋冬穿搭 fallback（練功十八法）', meta: '暫 — 設定頁改 ID', category: 'style' },
-  brighten_start:  { title: '✨ 美白入門 fallback', meta: '暫 — 設定頁改 ID', category: 'brighten' },
-  brighten_serum:  { title: '🧪 美白精華 fallback（粵語八段錦）', meta: '暫 — 設定頁改 ID', category: 'brighten' },
-  brighten_glow:   { title: '🌟 去黃提亮 fallback（Pamela legs）', meta: '暫用 — 設定頁改美白 ID', category: 'brighten' },
-  vid_skincare1:   { title: '🎬 護膚流程 fallback', meta: '暫廣東話瑜伽', category: 'all' },
-  vid_skincare2:   { title: '🎬 護膚 — 英國入手 fallback', meta: '暫粵語八段錦', category: 'all' },
-  vid_fitness1:    { title: '🎬 Pamela Reif · 15min HIIT 全身', meta: '德國女神·爆汗', category: 'all' },
+  style_dress:     { title: '💪 Pamela Reif · 10min Upper Body', meta: '暫用·設定頁改穿搭 ID', category: 'style' },
+  style_budget:    { title: '🏃‍♀️ Pamela Reif · 15min 舞蹈', meta: '暫用·設定頁改 ID', category: 'style' },
+  style_winter:    { title: '🦵 Pamela Reif · 10min Legs', meta: '暫用·設定頁改 ID', category: 'style' },
+  brighten_start:  { title: '🔥 Pamela Reif · 15min HIIT', meta: '暫用·設定頁改美白 ID', category: 'brighten' },
+  brighten_serum:  { title: '💪 Pamela Reif · 6min AB', meta: '暫用·設定頁改 ID', category: 'brighten' },
+  brighten_glow:   { title: '🦵 Pamela Reif · 10min Legs', meta: '暫用·設定頁改 ID', category: 'brighten' },
+  vid_skincare1:   { title: '🎬 Pamela Reif · 15min 舞蹈', meta: '新手友好', category: 'all' },
+  vid_skincare2:   { title: '🎬 Pamela Reif · 15min HIIT', meta: '爆汗', category: 'all' },
+  vid_fitness1:    { title: '🎬 Pamela Reif · 15min HIIT 全身', meta: '德國女神', category: 'all' },
   vid_fitness2:    { title: '🎬 Coffee 林芊妤 · 20min 瘦腿操', meta: '香港·廣東話', category: 'all' },
-  vid_fitness3:    { title: '🎬 Pamela Reif · 15min 舞蹈燃脂', meta: '新手友好', category: 'all' },
-  vid_style1:      { title: '🎬 Pamela Reif · 10min Upper Body', meta: '暫用', category: 'all' },
-  vid_style2:      { title: '🎬 英國秋冬穿搭 fallback', meta: '暫練功十八法', category: 'all' },
-  vid_brighten1:   { title: '🎬 美白步驟 fallback', meta: '暫廣東話瑜伽', category: 'all' },
-  vid_brighten2:   { title: '🎬 Pamela Reif · 6min AB', meta: '暫用', category: 'all' },
-  vid_brighten3:   { title: '🎬 Pamela Reif · 10min Legs', meta: '暫用', category: 'all' },
+  vid_fitness3:    { title: '🎬 Pamela Reif · 15min 舞蹈燃脂', meta: '新手', category: 'all' },
+  vid_style1:      { title: '🎬 Pamela Reif · 10min Upper Body', meta: '手臂背', category: 'all' },
+  vid_style2:      { title: '🎬 Pamela Reif · 10min Legs', meta: '瘦腿', category: 'all' },
+  vid_brighten1:   { title: '🎬 Pamela Reif · 15min 舞蹈', meta: '新手', category: 'all' },
+  vid_brighten2:   { title: '🎬 Pamela Reif · 6min AB', meta: '馬甲線', category: 'all' },
+  vid_brighten3:   { title: '🎬 Pamela Reif · 10min Legs', meta: '瘦腿', category: 'all' },
 };
 
 /* ===== Quotes ===== */
@@ -1100,6 +1100,33 @@ function seedData() {
       });
       if (changed) set('videoMap', storedMap);
     }
+    // Pool migration: append new entries that user's cached pool doesn't have
+    const cachedPool = get('videoPool', []);
+    const defaultPoolEntries = [
+      { id: '1skBf6h2ksI', title: 'Pamela Reif · 15min HIIT 全身燃脂' },
+      { id: 'Cw-Wt4xKD2s', title: 'Pamela Reif · 15min 舞蹈燃脂新手' },
+      { id: 'jC5xlKIQgR8', title: 'Pamela Reif · 6min AB 馬甲線' },
+      { id: 'CDhyNUjRHAg', title: 'Pamela Reif · 10min Upper Body' },
+      { id: 'LAeOJH_OIks', title: 'Pamela Reif · 10min Legs' },
+      { id: 'Rr8CEyQ3-5k', title: 'Coffee 林芊妤 · 20min 大腿操（廣東話）' },
+      { id: 'tGPZkpWcGuw', title: 'TO GIRLS · 私密小問題女生健康專場2（ah Veee）' },
+    ];
+    let poolChanged = false;
+    defaultPoolEntries.forEach(entry => {
+      if (!cachedPool.find(v => v.id === entry.id)) {
+        cachedPool.push(entry);
+        poolChanged = true;
+      }
+    });
+    // Also remove any tai-chi entries that were previously seeded
+    const taiChiIds = ['zQF2wsoA34w', 'ltrsTYGXMas', 'ctq7CnZgmdl', 'aRsF6K3_HAw'];
+    const filteredPool = cachedPool.filter(v => !taiChiIds.includes(v.id));
+    if (filteredPool.length !== cachedPool.length) {
+      cachedPool.length = 0;
+      cachedPool.push(...filteredPool);
+      poolChanged = true;
+    }
+    if (poolChanged) set('videoPool', cachedPool);
     return;
   }
   set('profile', { height: 162, age: 28, goalWeight: 50 });
@@ -1140,8 +1167,7 @@ function seedData() {
     { id: 'CDhyNUjRHAg', title: 'Pamela Reif · 10min Upper Body' },
     { id: 'LAeOJH_OIks', title: 'Pamela Reif · 10min Legs' },
     { id: 'Rr8CEyQ3-5k', title: 'Coffee 林芊妤 · 20min 大腿操（廣東話）' },
-    { id: 'zQF2wsoA34w', title: '15min 椅子瑜伽（廣東話）' },
-    { id: 'ltrsTYGXMas', title: '太極八段錦 12min（粵語口令）' },
+    { id: 'tGPZkpWcGuw', title: 'TO GIRLS · 私密小問題女生健康專場2（ah Veee）' },
   ]);
   set('lastRotationDate', '');
   set('currentRotation', {});
