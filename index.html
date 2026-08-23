@@ -897,7 +897,7 @@ a{color:var(--cherry);text-decoration:none}
 
       <div class="card">
         <div class="card-title"><span class="ic">🎬</span> 影片 ID 管理</div>
-        <div class="card-sub">每個 key 對應一個 YouTube 影片 ID（如 dQw4w9WgXcQ），改完即時生效</div>
+        <div class="card-sub">每個 key 對應一個 YouTube 影片 ID（如 zQF2wsoA34w），改完即時生效</div>
         <div id="videoIdEditor"></div>
         <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
           <button class="btn btn-soft" id="restoreVideoDefaultBtn">🔄 還原預設</button>
@@ -921,6 +921,24 @@ a{color:var(--cherry);text-decoration:none}
             </div>
             <button class="btn" id="clearAllBtn">🗑️ 清空</button>
           </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="ic">🔄</span> 影片 Pool（每日自動 rotation）</div>
+        <div class="card-sub">加 10–30 條 YouTube IDs 入 pool，app 每日自動隨機 swap 影片館嘅 3–5 個 slot，每日都見到唔同片 🎬</div>
+        <div id="poolList"></div>
+        <div class="input-row" style="margin-top:12px">
+          <div class="input-group"><label>YouTube ID</label><input type="text" class="input" id="poolIdInput" placeholder="eg 1skBf6h2ksI"></div>
+          <div class="input-group"><label>標題（揀填）</label><input type="text" class="input" id="poolTitleInput" placeholder="eg Pamela 15min HIIT"></div>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-primary" id="addPoolBtn">＋ 加入 pool</button>
+          <button class="btn btn-soft" id="rotateNowBtn">🔄 即時 rotation</button>
+        </div>
+        <div class="tip-card gentle" style="margin-top:14px">
+          <span class="tip-emoji">💡</span>
+          <span><strong>運作機制：</strong>每日凌晨自動用日期做 seed 揀 pool 入面嘅片 swap「影片館」頁面嘅 5 個 slot。refresh 就見到今日嘅 rotation。手動按「即時 rotation」可以即時換一批</span>
         </div>
       </div>
 
@@ -965,52 +983,58 @@ const daysAgo = (n) => { const d = new Date(Date.now() - n*86400000); return d.t
 
 /* ===== Default Video Map ===== */
 const defaultVideoMap = {
-  skincare_wash:   'dQw4w9WgXcQ',
-  skincare_spf:    'dQw4w9WgXcQ',
-  skincare_type:   'dQw4w9WgXcQ',
-  fitness_full:    'dQw4w9WgXcQ',
-  fitness_abs:     'dQw4w9WgXcQ',
-  fitness_leg:     'dQw4w9WgXcQ',
-  style_dress:     'dQw4w9WgXcQ',
-  style_budget:    'dQw4w9WgXcQ',
-  style_winter:    'dQw4w9WgXcQ',
-  brighten_start:  'dQw4w9WgXcQ',
-  brighten_serum:  'dQw4w9WgXcQ',
-  brighten_glow:   'dQw4w9WgXcQ',
-  vid_skincare1:   'dQw4w9WgXcQ',
-  vid_skincare2:   'dQw4w9WgXcQ',
-  vid_fitness1:    'dQw4w9WgXcQ',
-  vid_fitness2:    'dQw4w9WgXcQ',
-  vid_fitness3:    'dQw4w9WgXcQ',
-  vid_style1:      'dQw4w9WgXcQ',
-  vid_style2:      'dQw4w9WgXcQ',
-  vid_brighten1:   'dQw4w9WgXcQ',
-  vid_brighten2:   'dQw4w9WgXcQ',
-  vid_brighten3:   'dQw4w9WgXcQ',
+  // === 你 KOL 名單 confirmed IDs ===
+  // 護膚（程十安/姜乘瀾/駱王宇主要係抖音，冇 YouTube ID；ah Veee 搵唔到）
+  skincare_wash:    'zQF2wsoA34w',  // fallback: 廣東話椅子瑜伽
+  skincare_spf:     'ltrsTYGXMas',  // fallback: 粵語太極八段錦
+  skincare_type:    'zQF2wsoA34w',
+  // 輕盈體態 — 你嘅 KOL confirmed IDs！
+  fitness_full:     '1skBf6h2ksI',  // Pamela Reif 15min HIIT 全身燃脂
+  fitness_abs:       'jC5xlKIQgR8',  // Pamela Reif 6min Brutal AB 馬甲線
+  fitness_leg:       'Rr8CEyQ3-5k',  // Coffee 林芊妤 20min 特強大腿操
+  // 穿搭（冇 confirmed 穿搭 KOL ID；暫用 Pamela 健身片）
+  style_dress:       'CDhyNUjRHAg',  // Pamela 10min upper body（待換穿搭）
+  style_budget:     'zQF2wsoA34w',
+  style_winter:     'aRsF6K3_HAw',  // 練功十八法
+  // 美白（冇 confirmed IDs）
+  brighten_start:   'zQF2wsoA34w',
+  brighten_serum:   'ltrsTYGXMas',
+  brighten_glow:    'LAeOJH_OIks',  // Pamela 10min legs（待換美白片）
+  // 影片館 — 多樣化 KOL 精選
+  vid_skincare1:    'zQF2wsoA34w',
+  vid_skincare2:    'ltrsTYGXMas',
+  vid_fitness1:     '1skBf6h2ksI',  // Pamela HIIT
+  vid_fitness2:     'Rr8CEyQ3-5k',  // Coffee 大腿操
+  vid_fitness3:     'Cw-Wt4xKD2s',  // Pamela 15min 舞蹈新手
+  vid_style1:       'CDhyNUjRHAg',  // Pamela upper body
+  vid_style2:       'aRsF6K3_HAw',
+  vid_brighten1:    'zQF2wsoA34w',
+  vid_brighten2:    'jC5xlKIQgR8',  // Pamela abs
+  vid_brighten3:    'LAeOJH_OIks',  // Pamela legs
 };
 const videoMeta = {
-  skincare_wash:   { title: '🧴 新手潔面完整教學', meta: '5 分鐘學識正確洗臉', category: 'skincare' },
-  skincare_spf:    { title: '☀️ 防曬正確用法', meta: '幾時補、補幾多、邊度要搽', category: 'skincare' },
-  skincare_type:   { title: '🔍 一分鐘膚質自測', meta: '乾肌、油肌、混合、敏感', category: 'skincare' },
-  fitness_full:    { title: '🏃‍♀️ 15 分鐘零裝備全身運動', meta: '每日追蹤推薦動作', category: 'fitness' },
-  fitness_abs:     { title: '💪 臥床腰腹訓練', meta: '消肚腩 10 分鐘', category: 'fitness' },
-  fitness_leg:     { title: '🦵 瘦腿拉筋消水腫', meta: '8 個新手友好動作', category: 'fitness' },
-  style_dress:     { title: '👗 同身形顯瘦穿搭', meta: '梨形 / 蘋果形 / 沙漏都啱', category: 'style' },
-  style_budget:    { title: '💷 平價高質感配搭', meta: 'Primark / H&M 顯貴穿搭', category: 'style' },
-  style_winter:    { title: '🧥 英國秋冬保暖顯瘦穿搭', meta: '唔變米芝蓮人', category: 'style' },
-  brighten_start:  { title: '✨ 新手美白入門步驟', meta: '防曬 > 美白', category: 'brighten' },
-  brighten_serum:  { title: '🧪 平價有效美白精華', meta: 'The Ordinary / CeraVe', category: 'brighten' },
-  brighten_glow:   { title: '🌟 去黃提亮改善暗沉', meta: '5 個生活小習慣', category: 'brighten' },
-  vid_skincare1:   { title: '🎬 護膚：早晚完整流程', meta: '新手必睇一次', category: 'all' },
-  vid_skincare2:   { title: '🎬 護膚：英國平價好物開箱', meta: 'Boots / Superdrug', category: 'all' },
-  vid_fitness1:    { title: '🎬 居家全身 HIIT', meta: '15 分鐘爆汗', category: 'all' },
-  vid_fitness2:    { title: '🎬 辦公室拉筋伸展', meta: '腰痛頸梗救星', category: 'all' },
-  vid_fitness3:    { title: '🎬 居家消水腫拉筋', meta: '起身即刻瘦', category: 'all' },
-  vid_style1:      { title: '🎬 梨形身顯瘦褲款', meta: '5 條必入', category: 'all' },
-  vid_style2:      { title: '🎬 英國秋冬保暖穿搭', meta: '唔肥唔腫', category: 'all' },
-  vid_brighten1:   { title: '🎬 美白成分全解析', meta: '維C / 煙酰胺 / A 醇', category: 'all' },
-  vid_brighten2:   { title: '🎬 維C 精華正確用法', meta: '早晚搭配重點', category: 'all' },
-  vid_brighten3:   { title: '🎬 改善暗沉飲食法', meta: '由內到外透亮', category: 'all' },
+  skincare_wash:   { title: '🧴 護膚 fallback（廣東話瑜伽）', meta: '暫 — 設定頁改 ID', category: 'skincare' },
+  skincare_spf:    { title: '☀️ 防曬 fallback（粵語八段錦）', meta: '暫 — 設定頁改 ID', category: 'skincare' },
+  skincare_type:   { title: '🔍 膚質自測 fallback', meta: '暫 — 設定頁改 ID', category: 'skincare' },
+  fitness_full:    { title: '🏃‍♀️ Pamela Reif · 15min HIIT 全身燃脂', meta: '德國健身女神·無裝備', category: 'fitness' },
+  fitness_abs:     { title: '💪 Pamela Reif · 6min Brutal AB 馬甲線', meta: '地獄級腹肌訓練', category: 'fitness' },
+  fitness_leg:     { title: '🦵 Coffee 林芊妤 · 20min 特強大腿操', meta: '廣東話·減外側內側+提臀', category: 'fitness' },
+  style_dress:     { title: '💪 Pamela Reif · 10min Upper Body', meta: '暫用 — 設定頁改穿搭 ID', category: 'style' },
+  style_budget:    { title: '👗 穿搭 fallback', meta: '暫 — 設定頁改 ID', category: 'style' },
+  style_winter:    { title: '🧥 秋冬穿搭 fallback（練功十八法）', meta: '暫 — 設定頁改 ID', category: 'style' },
+  brighten_start:  { title: '✨ 美白入門 fallback', meta: '暫 — 設定頁改 ID', category: 'brighten' },
+  brighten_serum:  { title: '🧪 美白精華 fallback（粵語八段錦）', meta: '暫 — 設定頁改 ID', category: 'brighten' },
+  brighten_glow:   { title: '🌟 去黃提亮 fallback（Pamela legs）', meta: '暫用 — 設定頁改美白 ID', category: 'brighten' },
+  vid_skincare1:   { title: '🎬 護膚流程 fallback', meta: '暫廣東話瑜伽', category: 'all' },
+  vid_skincare2:   { title: '🎬 護膚 — 英國入手 fallback', meta: '暫粵語八段錦', category: 'all' },
+  vid_fitness1:    { title: '🎬 Pamela Reif · 15min HIIT 全身', meta: '德國女神·爆汗', category: 'all' },
+  vid_fitness2:    { title: '🎬 Coffee 林芊妤 · 20min 瘦腿操', meta: '香港·廣東話', category: 'all' },
+  vid_fitness3:    { title: '🎬 Pamela Reif · 15min 舞蹈燃脂', meta: '新手友好', category: 'all' },
+  vid_style1:      { title: '🎬 Pamela Reif · 10min Upper Body', meta: '暫用', category: 'all' },
+  vid_style2:      { title: '🎬 英國秋冬穿搭 fallback', meta: '暫練功十八法', category: 'all' },
+  vid_brighten1:   { title: '🎬 美白步驟 fallback', meta: '暫廣東話瑜伽', category: 'all' },
+  vid_brighten2:   { title: '🎬 Pamela Reif · 6min AB', meta: '暫用', category: 'all' },
+  vid_brighten3:   { title: '🎬 Pamela Reif · 10min Legs', meta: '暫用', category: 'all' },
 };
 
 /* ===== Quotes ===== */
@@ -1062,7 +1086,22 @@ function confirmModal(title, desc, onYes, danger = false) {
 
 /* ===== Seed Data ===== */
 function seedData() {
-  if (get('seeded')) return;
+  if (get('seeded')) {
+    // Migration: replace any cached Rickroll placeholders with new defaults
+    const storedMap = get('videoMap', null);
+    if (storedMap) {
+      let changed = false;
+      Object.keys(storedMap).forEach(k => {
+        const oldPlaceholders = ['dQw4w9WgXcQ', 'zQF2wsoA34w', 'ltrsTYGXMas', 'ctq7CnZgmdl', 'aRsF6K3_HAw'];
+      if (oldPlaceholders.includes(storedMap[k]) && defaultVideoMap[k] && !oldPlaceholders.includes(defaultVideoMap[k])) {
+          storedMap[k] = defaultVideoMap[k];
+          changed = true;
+        }
+      });
+      if (changed) set('videoMap', storedMap);
+    }
+    return;
+  }
   set('profile', { height: 162, age: 28, goalWeight: 50 });
   const records = [
     { date: daysAgo(14), weight: 57.0, waist: 73, hip: 95, thigh: 53, calf: 34, upperArm: 27.5, feel: '放鬆' },
@@ -1094,6 +1133,18 @@ function seedData() {
   set('waterToday', 0);
   set('reminders', { up: '06:45', sleep: '22:30', skin: '21:30', stretch: true });
   set('videoMap', { ...defaultVideoMap });
+  set('videoPool', [
+    { id: '1skBf6h2ksI', title: 'Pamela Reif · 15min HIIT 全身燃脂' },
+    { id: 'Cw-Wt4xKD2s', title: 'Pamela Reif · 15min 舞蹈燃脂新手' },
+    { id: 'jC5xlKIQgR8', title: 'Pamela Reif · 6min AB 馬甲線' },
+    { id: 'CDhyNUjRHAg', title: 'Pamela Reif · 10min Upper Body' },
+    { id: 'LAeOJH_OIks', title: 'Pamela Reif · 10min Legs' },
+    { id: 'Rr8CEyQ3-5k', title: 'Coffee 林芊妤 · 20min 大腿操（廣東話）' },
+    { id: 'zQF2wsoA34w', title: '15min 椅子瑜伽（廣東話）' },
+    { id: 'ltrsTYGXMas', title: '太極八段錦 12min（粵語口令）' },
+  ]);
+  set('lastRotationDate', '');
+  set('currentRotation', {});
   set('seeded', true);
 }
 
@@ -1472,7 +1523,7 @@ function renderVideoList(container, keys) {
   container.innerHTML = keys.map(k => {
     if (!videoMeta[k]) return '';
     const meta = videoMeta[k];
-    const id = map[k] || 'dQw4w9WgXcQ';
+    const id = getEffectiveVideoId(k);
     return `<div class="video-card">
       <div class="video-frame">
         <span class="video-edit-badge">🍒 ${k}</span>
@@ -1848,6 +1899,120 @@ $('#clearAllBtn').addEventListener('click', () => {
 });
 
 /* ===== Init ===== */
+/* ===== Video Pool (Daily Rotation) ===== */
+function getVideoPool() { return get('videoPool', []); }
+function setVideoPool(p) { set('videoPool', p); }
+
+function getDailyRotationSeed() {
+  const d = new Date();
+  return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+}
+
+function seededRandom(seed) {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
+
+function pickDailyVideos() {
+  const pool = getVideoPool();
+  if (pool.length === 0) return {};
+
+  const today = todayStr();
+  const lastRotation = get('lastRotationDate', '');
+
+  if (lastRotation === today) {
+    return get('currentRotation', {});
+  }
+
+  const seed = getDailyRotationSeed();
+  const numToPick = Math.min(pool.length, 3 + Math.floor(seededRandom(seed) * 3));
+  const picked = [];
+  const used = new Set();
+  for (let i = 0; i < numToPick; i++) {
+    let idx, attempts = 0;
+    do {
+      idx = Math.floor(seededRandom(seed + i * 7 + attempts) * pool.length);
+      attempts++;
+    } while (used.has(idx) && used.size < pool.length && attempts < 100);
+    if (!used.has(idx)) {
+      used.add(idx);
+      picked.push(pool[idx]);
+    }
+  }
+
+  // 呢 5 個係「影片館」嘅 slot（唔會 swap 主分類嘅 fitness_full 等 confirmed KOL 片）
+  const rotatableSlots = ['vid_skincare1', 'vid_skincare2', 'vid_style1', 'vid_brighten1', 'vid_brighten3'];
+  const rotation = {};
+  picked.forEach((v, i) => {
+    if (i < rotatableSlots.length) {
+      rotation[rotatableSlots[i]] = v;
+    }
+  });
+
+  set('currentRotation', rotation);
+  set('lastRotationDate', today);
+  return rotation;
+}
+
+function getEffectiveVideoId(key) {
+  const rotation = pickDailyVideos();
+  if (rotation[key]) return rotation[key].id;
+  const map = get('videoMap', defaultVideoMap);
+  return map[key] || defaultVideoMap[key] || 'dQw4w9WgXcQ';
+}
+
+function renderPoolList() {
+  const pool = getVideoPool();
+  const list = document.getElementById('poolList');
+  if (!list) return;
+  if (pool.length === 0) {
+    list.innerHTML = '<div class="empty"><div class="emoji">🎬</div>Pool 暫未有片，加入下面第一條 ID 啦 🍒</div>';
+    return;
+  }
+  list.innerHTML = '<div class="list">' + pool.map((v, i) =>
+    '<div class="list-item"><span style="font-size:22px">🎬</span><div class="left"><div class="title">' + (v.title || v.id) + '</div><div class="meta">ID: ' + v.id + '</div></div><button class="btn btn-icon btn-soft" data-del-pool="' + i + '" title="刪除">🗑️</button></div>'
+  ).join('') + '</div>';
+  document.querySelectorAll('[data-del-pool]').forEach(b => b.addEventListener('click', e => {
+    const i = +e.currentTarget.dataset.delPool;
+    const pool = getVideoPool();
+    pool.splice(i, 1);
+    setVideoPool(pool);
+    renderPoolList();
+    toast('🍒 已從 pool 移除');
+  }));
+}
+
+function addToPool() {
+  const idEl = document.getElementById('poolIdInput');
+  const titleEl = document.getElementById('poolTitleInput');
+  const id = (idEl.value || '').trim();
+  const title = (titleEl.value || '').trim();
+  if (!id || id.length < 6) {
+    toast('請輸入有效 YouTube ID（至少 6 個字符）');
+    return;
+  }
+  const pool = getVideoPool();
+  if (pool.find(v => v.id === id)) {
+    toast('呢條 ID 已經喺 pool 入面');
+    return;
+  }
+  pool.push({ id, title: title || id });
+  setVideoPool(pool);
+  idEl.value = '';
+  titleEl.value = '';
+  renderPoolList();
+  toast('🍒 已加入 pool！明日 rotation 生效');
+}
+
+function rotateNow() {
+  set('lastRotationDate', '');
+  pickDailyVideos();
+  toast('🔄 已即時 rotation！');
+  if (document.getElementById('page-videos').classList.contains('active') && typeof renderVideoLibrary === 'function') {
+    renderVideoLibrary();
+  }
+}
+
 function init() {
   seedData();
   renderDailyGoals();
@@ -1858,6 +2023,12 @@ function init() {
   $('#sleepLog').textContent = (get('lastSleep') || '—') + (get('lastSleep') ? 'h' : '');
   $('#saltToday').textContent = get('saltToday', 0);
 }
+if (document.getElementById('addPoolBtn')) document.getElementById('addPoolBtn').addEventListener('click', addToPool);
+if (document.getElementById('rotateNowBtn')) document.getElementById('rotateNowBtn').addEventListener('click', rotateNow);
+// Patch renderSettings to also render pool list
+const _origRenderSettings = renderSettings;
+renderSettings = function() { _origRenderSettings(); renderPoolList(); };
+
 init();
 
 /* ===== Periodic refresh of date/time dependent bits ===== */
